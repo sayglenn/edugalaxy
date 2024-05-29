@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "856186144017",
+    "project_id": "edugalaxy-f47be",
+    "storage_bucket": "edugalaxy-f47be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:856186144017:android:95dcd33b99652aebeb38b0",
+        "android_client_info": {
+          "package_name": "com.edugalaxy.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFOkg34e9CX2SmPRHp2sZikWUlEtadhGQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
