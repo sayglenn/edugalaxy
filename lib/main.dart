@@ -1,5 +1,6 @@
 import 'package:edugalaxy/pages/home.dart';
-import 'package:edugalaxy/pages/login_page.dart';  
+import 'package:edugalaxy/pages/login_page.dart';
+import 'package:edugalaxy/pages/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EduGalaxy',
-      home: AuthWrapper(),  // Use the AuthWrapper as the home
+      home: NavBar(), // Use the AuthWrapper as the home
     );
   }
 }
