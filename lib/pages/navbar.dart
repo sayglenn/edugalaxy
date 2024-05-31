@@ -48,7 +48,7 @@ class _NavBarState extends State<NavBar> {
           })
         },
       ),
-      body: <Widget>[
+      body: [
         const HomePage(),
         const TasksPage(),
         const SettingsPage(),
