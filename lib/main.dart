@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'EduGalaxy',
-      home: NavBar(), // Use the AuthWrapper as the home
+      home: AuthWrapper(), // Use the AuthWrapper as the home
     );
   }
 }
@@ -38,7 +38,7 @@ class AuthWrapper extends StatelessWidget {
           return Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasData) {
-          return HomePage();
+          return NavBar();
         } else {
           return LoginPage();
         }
