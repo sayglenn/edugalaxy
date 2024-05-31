@@ -12,7 +12,7 @@ class HomePage extends StatelessWidget {
           Expanded(
             child: Container(
               width: double.infinity,
-              color: Colors.pink,
+              color: const Color.fromARGB(255, 255, 174, 201),
             ),
           ),
           OverflowBar(
