@@ -17,7 +17,16 @@ class _NavBarState extends State<NavBar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.yellow,
+        title: Text(currentPageIndex == 0
+            ? 'Home'
+            : currentPageIndex == 1
+                ? 'Tasks'
+                : 'Settings'),
+      ),
       bottomNavigationBar: NavigationBar(
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
         destinations: [
           NavigationDestination(
             icon: SvgPicture.asset(
@@ -46,9 +55,9 @@ class _NavBarState extends State<NavBar> {
         },
       ),
       body: <Widget>[
-        HomePage(),
-        TasksPage(),
-        SettingsPage(),
+        const HomePage(),
+        const TasksPage(),
+        const SettingsPage(),
       ][currentPageIndex],
     );
   }
