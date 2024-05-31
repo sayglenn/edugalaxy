@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:edugalaxy/pages/navbar.dart';
+import 'package:edugalaxy/database_functions.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home.dart';
@@ -26,12 +27,19 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final User? user = userCredential.user;
 
-      if (userCredential.user != null) {
+      if (user != null) {
+        bool user_exists = await DatabaseService.dataExists('Users', user.uid);
+        if (user_exists) {
+            // TODO copy to local cache
+        } else {
+            await DatabaseService.createData('Users', user.uid);
+        }
         Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => NavBar()),
-        );
+            context,
+            MaterialPageRoute(builder: (context) => NavBar()),
+        ); 
       }
     } catch (e) {
       print(e);
