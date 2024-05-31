@@ -1,5 +1,8 @@
+import 'package:date_field/date_field.dart';
 import 'package:edugalaxy/models/task_model.dart';
 import 'package:flutter/material.dart';
+
+enum Priority { low, medium, high }
 
 class TasksPage extends StatelessWidget {
   const TasksPage({super.key});
@@ -7,6 +10,10 @@ class TasksPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    String? title;
+    DateTime? date;
+    int? timeToComplete;
+    Priority? priority = Priority.medium;
 
     return Column(
       children: [
@@ -28,7 +35,7 @@ class TasksPage extends StatelessWidget {
                     builder: (BuildContext context) {
                       return Container(
                         width: double.infinity,
-                        height: 600,
+                        height: 475,
                         color: Color.fromARGB(255, 206, 238, 255),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -48,19 +55,58 @@ class TasksPage extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _fieldHeader("Title"),
                                   Padding(
                                     padding: const EdgeInsets.only(
+                                      top: 16.0,
                                       left: 16.0,
                                       right: 16.0,
+                                      bottom: 32.0,
                                     ),
-                                    child: TextField(
+                                    child: TextFormField(
                                       decoration: InputDecoration(
+                                        labelText: "Title *",
                                         filled: true,
                                         fillColor: Colors.white,
                                         contentPadding:
                                             const EdgeInsets.all(15),
-                                        hintText: 'Reminder Name',
+                                        hintText:
+                                            'What will you name your task?',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (value == null || value.isEmpty) {
+                                          return "Please input a title";
+                                        }
+                                        return null;
+                                      },
+                                      onSaved: (value) {
+                                        title = value;
+                                      },
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 16.0,
+                                      right: 16.0,
+                                      bottom: 32.0,
+                                    ),
+                                    child: DateTimeFormField(
+                                      onChanged: (newDate) {
+                                        date = newDate;
+                                      },
+                                      firstDate: DateTime.now(),
+                                      lastDate: DateTime(2100),
+                                      decoration: InputDecoration(
+                                        labelText: "Due Date *",
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding:
+                                            const EdgeInsets.all(15),
+                                        hintText: 'When is the task due?',
                                         border: OutlineInputBorder(
                                           borderRadius:
                                               BorderRadius.circular(15),
@@ -69,10 +115,51 @@ class TasksPage extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  SizedBox(
-                                    height: 18,
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 16.0,
+                                      right: 16.0,
+                                      bottom: 32.0,
+                                    ),
+                                    child: TextFormField(
+                                      decoration: InputDecoration(
+                                        labelText: "Duration *",
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding:
+                                            const EdgeInsets.all(15),
+                                        hintText:
+                                            'How long does your task need?',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(15),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                  _fieldHeader("Due Date"),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 16.0,
+                                      right: 16.0,
+                                    ),
+                                    child: SegmentedButton(
+                                      segments: [
+                                        ButtonSegment(
+                                          value: Priority.low,
+                                          label: Text("Low"),
+                                        ),
+                                        ButtonSegment(
+                                          value: Priority.medium,
+                                          label: Text("Medium"),
+                                        ),
+                                        ButtonSegment(
+                                            value: Priority.high,
+                                            label: Text("High"))
+                                      ],
+                                      selected: {priority},
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -89,23 +176,6 @@ class TasksPage extends StatelessWidget {
           ],
         ),
       ],
-    );
-  }
-
-  Padding _fieldHeader(String fieldHeader) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16.0,
-        bottom: 4.0,
-      ),
-      child: Text(
-        fieldHeader,
-        textAlign: TextAlign.left,
-        style: TextStyle(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
     );
   }
 }

@@ -1,8 +1,10 @@
+import 'package:edugalaxy/pages/tasks.dart';
+
 class Task {
   String title;
   DateTime date;
   int timeToComplete;
-  int priority;
+  Priority priority;
 
   Task({
     required this.title,
