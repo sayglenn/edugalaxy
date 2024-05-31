@@ -18,7 +18,7 @@ class _NavBarState extends State<NavBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.yellow,
+        backgroundColor: Color.fromARGB(255, 255, 250, 190),
         title: Text(currentPageIndex == 0
             ? 'Home'
             : currentPageIndex == 1
@@ -27,23 +27,17 @@ class _NavBarState extends State<NavBar> {
       ),
       bottomNavigationBar: NavigationBar(
         labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-        destinations: [
+        destinations: const [
           NavigationDestination(
-            icon: SvgPicture.asset(
-              'assets/icons/home.svg',
-            ),
+            icon: Icon(Icons.home_rounded),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: SvgPicture.asset(
-              'assets/icons/tasks.svg',
-            ),
+            icon: Icon(Icons.checklist_rounded),
             label: 'Tasks',
           ),
           NavigationDestination(
-            icon: SvgPicture.asset(
-              'assets/icons/settings.svg',
-            ),
+            icon: Icon(Icons.settings),
             label: 'Settings',
           )
         ],
