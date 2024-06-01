@@ -31,10 +31,11 @@ class _LoginPageState extends State<LoginPage> {
 
       if (user != null) {
         bool user_exists = await DatabaseService.dataExists('Users', user.uid);
+        print(user_exists);
         if (user_exists) {
             // TODO copy to local cache
         } else {
-            await DatabaseService.createData('Users', user.uid);
+            await DatabaseService.updateData('Users/${user.uid}/Tasks', {'initialised': true});
         }
         Navigator.pushReplacement(
             context,

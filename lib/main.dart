@@ -1,3 +1,4 @@
+import 'package:edugalaxy/database_functions.dart';
 import 'package:edugalaxy/pages/login_page.dart';
 import 'package:edugalaxy/pages/navbar.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
   runApp(const MyApp());
 }
 
