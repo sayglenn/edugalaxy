@@ -7,7 +7,17 @@ EduGalaxy is an application aimed to provide a simple way to organise tasks and 
 - [General Information](#general-information)
 - [Setup](#setup)
 
+## General Information
+
+Our motivation for creating this application stems from the difficulty to stay motivated and focused during study sessions. Often, students will find themselves easily distracted by their mobile devices, pop-up notifications or social media. Due to such occurrences, students often end up having unfruitful study sessions where they are unable to stay focused.
+
+Enter EduGalaxy. This application intends to aid students in organising their study sessions and their respective studying tasks. This is especially helpful during the examination period, where students have to juggle between studying for multiple examinations.
+
+EduGalaxy has a task manager, where students can input in the task with a few properties: name, time required, due date, priority. On top of this, EduGalaxy also has a study session function, where study sessions can be auto-generated based on a student's requirements, based on their existing incomplete tasks.
+
+With such an application, EduGalaxy aims to boost the productivity of the students and be able to allow students to have more fruitful study sessions, boosting their academic achievements.
+
 ## Setup
 
-1. Ensure that [Flutter](https://docs.flutter.dev/get-started/install) is properly installed on your device to be able to run this. Do ensure that all development tools are properly installed, including [Xcode](https://developer.apple.com/xcode/) and [CocoaPods](https://cocoapods.org/)
+1. Ensure that [Flutter](https://docs.flutter.dev/get-started/install) is properly installed on your device to be able to run this. Do ensure that all development tools are properly installed, including [Xcode](https://developer.apple.com/xcode/) and [CocoaPods](https://cocoapods.org/).
 2. Clone the repository onto your local device.
