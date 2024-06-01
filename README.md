@@ -21,3 +21,16 @@ With such an application, EduGalaxy aims to boost the productivity of the studen
 
 1. Ensure that [Flutter](https://docs.flutter.dev/get-started/install) is properly installed on your device to be able to run this. Do ensure that all development tools are properly installed, including [Xcode](https://developer.apple.com/xcode/) and [CocoaPods](https://cocoapods.org/).
 2. Clone the repository onto your local device.
+3. In the project root folder, create a .env file and ...
+4. Run the below command to open a iPhone simulator on Xcode:
+
+```
+$ open -a simulator
+```
+
+5. To get the required Flutter dependencies, and then launch the project, run:
+
+```
+$ flutter pub get
+$ flutter run
+```
