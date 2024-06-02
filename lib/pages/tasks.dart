@@ -74,7 +74,7 @@ class TasksPage extends StatelessWidget {
                                     ],
                                   ),
                                   _submitTask(_formKey, title, date, hours,
-                                      minutes, priority)
+                                      minutes, priority, context)
                                 ],
                               ),
                             ),
@@ -95,7 +95,7 @@ class TasksPage extends StatelessWidget {
   }
 
   Row _submitTask(GlobalKey<FormState> _formKey, String? title, DateTime? date,
-      int? hours, int? minutes, Priority? priority) {
+      int? hours, int? minutes, Priority? priority, BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -121,6 +121,7 @@ class TasksPage extends StatelessWidget {
                   minutes: minutes,
                   priority: priority,
                 );
+                Navigator.pop(context);
               }
             },
           ),
