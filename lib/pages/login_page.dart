@@ -40,8 +40,9 @@ class _LoginPageState extends State<LoginPage> {
             LocalCache.set_uid(user.uid);
             print(LocalCache.uid);
         } else {
-          await DatabaseService.updateData(
-              'Users/${user.uid}/Tasks', {'initialised': true});
+            LocalCache.set_uid(user.uid);
+            await DatabaseService.updateData(
+                'Users/${user.uid}/Tasks', {'initialised': true});
         }
         Navigator.pushReplacement(
           context,
