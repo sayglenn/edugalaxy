@@ -4,7 +4,6 @@ import 'package:edugalaxy/database_functions.dart';
 import 'package:edugalaxy/local_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'home.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -20,14 +19,16 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser!.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      final UserCredential userCredential =
+          await _auth.signInWithCredential(credential);
       final User? user = userCredential.user;
 
       if (user != null) {
@@ -38,12 +39,13 @@ class _LoginPageState extends State<LoginPage> {
             LocalCache.setData(user_data);
             print(LocalCache.readData(''));
         } else {
-            await DatabaseService.updateData('Users/${user.uid}/Tasks', {'initialised': true});
+          await DatabaseService.updateData(
+              'Users/${user.uid}/Tasks', {'initialised': true});
         }
         Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => NavBar()),
-        ); 
+          context,
+          MaterialPageRoute(builder: (context) => NavBar()),
+        );
       }
     } catch (e) {
       print(e);

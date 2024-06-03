@@ -2,7 +2,6 @@ import 'package:edugalaxy/pages/home.dart';
 import 'package:edugalaxy/pages/settings.dart';
 import 'package:edugalaxy/pages/tasks.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
