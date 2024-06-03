@@ -41,51 +41,54 @@ class _TasksPageState extends State<TasksPage> {
                   showModalBottomSheet<void>(
                     context: context,
                     builder: (BuildContext context) {
-                      return Container(
-                        width: double.infinity,
-                        height: 470,
-                        color: Color.fromARGB(255, 206, 238, 255),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8.0,
+                      return SingleChildScrollView(
+                        child: Container(
+                          width: double.infinity,
+                          color: Color.fromARGB(255, 206, 238, 255),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8.0,
+                                ),
+                                child: Text(
+                                  "Create Task",
+                                  style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      fontSize: 36,
+                                      fontWeight: FontWeight.w700),
+                                ),
                               ),
-                              child: Text(
-                                "Create Task",
-                                style: TextStyle(
-                                    decoration: TextDecoration.underline,
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.w700),
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    _titleField(),
+                                    _dueDateField(),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: _hoursField(),
+                                        ),
+                                        SizedBox(width: 8.0),
+                                        Expanded(
+                                          child: _minutesField()
+                                        ),
+                                        SizedBox(width: 8.0),
+                                        Expanded(
+                                          child: _priorityField(),
+                                        ),
+                                      ],
+                                    ),
+                                    _submitTask(context)
+                                  ],
+                                ),
                               ),
-                            ),
-                            Form(
-                              key: _formKey,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _titleField(),
-                                  _dueDateField(),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _hoursField(),
-                                      ),
-                                      SizedBox(
-                                          width: 155,
-                                          child: _minutesField()),
-                                      Expanded(
-                                        child: _priorityField(),
-                                      ),
-                                    ],
-                                  ),
-                                  _submitTask(context)
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        )
                       );
                     },
                   );
@@ -146,152 +149,155 @@ class _TasksPageState extends State<TasksPage> {
     );
   }
 
-  Padding _priorityField() {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 4.0,
-        right: 16.0,
-      ),
-      child: DropdownButtonFormField<int?>(
-        decoration: InputDecoration(
-          labelText: "Priority *",
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.all(15),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
-          ),
+  Widget _priorityField() {
+    // return Padding(
+    //   padding: const EdgeInsets.only(
+    //     left: 4.0,
+    //     right: 16.0,
+    //   ),
+    //  child: 
+    return DropdownButtonFormField<int?>(
+      decoration: InputDecoration(
+        labelText: "Priority *",
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.all(15),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
         ),
-        items: const [
-          DropdownMenuItem(
-            value: 1,
-            child: Text("Low"),
-          ),
-          DropdownMenuItem(
-            value: 2,
-            child: Text("Medium"),
-          ),
-          DropdownMenuItem(
-            value: 3,
-            child: Text("High"),
-          ),
-        ],
-        onChanged: (value) {
-          setState(() {
-            _priority = value;
-          });
-        },
-        onSaved: (value) {
-          setState(() {
-            _priority = value;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return "Required";
-          }
-          return null;
-        },
       ),
+      items: const [
+        DropdownMenuItem(
+          value: 1,
+          child: Text("Low"),
+        ),
+        DropdownMenuItem(
+          value: 2,
+          child: Text("Medium"),
+        ),
+        DropdownMenuItem(
+          value: 3,
+          child: Text("High"),
+        ),
+      ],
+      onChanged: (value) {
+        setState(() {
+          _priority = value;
+        });
+      },
+      onSaved: (value) {
+        setState(() {
+          _priority = value;
+        });
+      },
+      validator: (value) {
+        if (value == null) {
+          return "Required";
+        }
+        return null;
+      },
+      //),
     );
   }
 
-  Padding _minutesField() {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 4.0,
-        right: 4.0,
-      ),
-      child: DropdownButtonFormField<int>(
-        decoration: InputDecoration(
-          labelText: "Minutes *",
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.all(15),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
-          ),
+  Widget _minutesField() {
+    // return Padding(
+    //   padding: const EdgeInsets.only(
+    //     left: 4.0,
+    //     right: 4.0,
+    //   ),
+    //   child: 
+    return DropdownButtonFormField<int>(
+      decoration: InputDecoration(
+        labelText: "Minutes *",
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.all(15),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
         ),
-        items: const [
-          DropdownMenuItem(
-            value: 0,
-            child: Text("0 minutes"),
-          ),
-          DropdownMenuItem(
-            value: 15,
-            child: Text("15 minutes"),
-          ),
-          DropdownMenuItem(
-            value: 30,
-            child: Text("30 minutes"),
-          ),
-          DropdownMenuItem(
-            value: 45,
-            child: Text("45 minutes"),
-          ),
-        ],
-        onChanged: (value) {
-          setState(() {
-            _minutes = value;
-          });
-        },
-        onSaved: (value) {
-          setState(() {
-            _minutes = value;
-          });
-        },
-        validator: (value) {
-          if (value == null) {
-            return "Required";
-          }
-          return null;
-        },
       ),
+      items: const [
+        DropdownMenuItem(
+          value: 0,
+          child: Text("0 minutes"),
+        ),
+        DropdownMenuItem(
+          value: 15,
+          child: Text("15 minutes"),
+        ),
+        DropdownMenuItem(
+          value: 30,
+          child: Text("30 minutes"),
+        ),
+        DropdownMenuItem(
+          value: 45,
+          child: Text("45 minutes"),
+        ),
+      ],
+      onChanged: (value) {
+        setState(() {
+          _minutes = value;
+        });
+      },
+      onSaved: (value) {
+        setState(() {
+          _minutes = value;
+        });
+      },
+      validator: (value) {
+        if (value == null) {
+          return "Required";
+        }
+        return null;
+      },
+      //),
     );
   }
 
-  Padding _hoursField() {
-    return Padding(
-      padding: const EdgeInsets.only(
-        left: 16.0,
-        right: 4.0,
-      ),
-      child: DropdownButtonFormField<int>(
-        decoration: InputDecoration(
-          labelText: "Hours *",
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.all(15),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
-          ),
+  Widget _hoursField() {
+    // return Padding(
+    //   padding: const EdgeInsets.only(
+    //     left: 16.0,
+    //     right: 4.0,
+    //   ),
+    //   child: 
+    return DropdownButtonFormField<int>(
+      decoration: InputDecoration(
+        labelText: "Hours *",
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.all(15),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
         ),
-        items: List.generate(
-            8,
-            (index) => DropdownMenuItem(
-                  value: index + 1,
-                  child: Text('${index + 1} hour${index + 1 == 1 ? "" : "s"}'),
-                )),
-        validator: (value) {
-          if (value == null) {
-            return "Required";
-          }
-          return null;
-        },
-        onChanged: (value) {
-          setState(() {
-            _hours = value;
-          });
-        },
-        onSaved: (value) {
-          setState(() {
-            _hours = value;
-          });
-        },
       ),
+      items: List.generate(
+          8,
+          (index) => DropdownMenuItem(
+                value: index + 1,
+                child: Text('${index + 1} hour${index + 1 == 1 ? "" : "s"}'),
+              )),
+      validator: (value) {
+        if (value == null) {
+          return "Required";
+        }
+        return null;
+      },
+      onChanged: (value) {
+        setState(() {
+          _hours = value;
+        });
+      },
+      onSaved: (value) {
+        setState(() {
+          _hours = value;
+        });
+      },
+      //),
     );
   }
 
