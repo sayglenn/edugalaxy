@@ -35,9 +35,10 @@ class _LoginPageState extends State<LoginPage> {
         bool user_exists = await DatabaseService.dataExists('Users', user.uid);
         print(user_exists);
         if (user_exists) {
-            Map? user_data = await DatabaseService.readData('Users/${user.uid}');
-            LocalCache.setData(user_data);
-            print(LocalCache.readData(''));
+            print(LocalCache.uid);
+            // Map? user_data = await DatabaseService.readData('Users/${user.uid}');
+            LocalCache.set_uid(user.uid);
+            print(LocalCache.uid);
         } else {
           await DatabaseService.updateData(
               'Users/${user.uid}/Tasks', {'initialised': true});
