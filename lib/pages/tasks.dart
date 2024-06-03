@@ -1,21 +1,28 @@
 import 'package:date_field/date_field.dart';
 import 'package:edugalaxy/models/task_model.dart';
+import 'package:edugalaxy/database_functions.dart';
+import 'package:edugalaxy/local_cache.dart';
 import 'package:flutter/material.dart';
 
 enum Priority { low, medium, high }
 
-class TasksPage extends StatelessWidget {
+class TasksPage extends StatefulWidget {
   const TasksPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-    String? title;
-    DateTime? date;
-    int? hours;
-    int? minutes;
-    Priority? priority;
+  _TasksPageState createState() => _TasksPageState();
+}
 
+class _TasksPageState extends State<TasksPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  String? _title;
+  DateTime? _date;
+  int? _hours;
+  int? _minutes;
+  int? _priority;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       children: [
         Expanded(
@@ -58,23 +65,22 @@ class TasksPage extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _titleField(title),
-                                  _dueDateField(date),
+                                  _titleField(),
+                                  _dueDateField(),
                                   Row(
                                     children: [
                                       Expanded(
-                                        child: _hoursField(hours),
+                                        child: _hoursField(),
                                       ),
                                       SizedBox(
                                           width: 155,
-                                          child: _minutesField(minutes)),
+                                          child: _minutesField()),
                                       Expanded(
-                                        child: _priorityField(priority),
+                                        child: _priorityField(),
                                       ),
                                     ],
                                   ),
-                                  _submitTask(_formKey, title, date, hours,
-                                      minutes, priority, context)
+                                  _submitTask(context)
                                 ],
                               ),
                             ),
@@ -94,8 +100,7 @@ class TasksPage extends StatelessWidget {
     );
   }
 
-  Row _submitTask(GlobalKey<FormState> _formKey, String? title, DateTime? date,
-      int? hours, int? minutes, Priority? priority, BuildContext context) {
+  Row _submitTask(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -114,13 +119,24 @@ class TasksPage extends StatelessWidget {
             ),
             onPressed: () {
               if (_formKey.currentState!.validate()) {
-                final task = Task(
-                  title: title,
-                  dueDate: date,
-                  hours: hours,
-                  minutes: minutes,
-                  priority: priority,
-                );
+                _formKey.currentState!.save();
+                String? dateString = _date?.toIso8601String();
+                Map<int, String> priorityDict = {
+                  1: "Low",
+                  2: "Medium",
+                  3: "High"
+                };
+                final Map<String, dynamic> task = {
+                  "title": _title,
+                  "dueDate": dateString,
+                  "hours": _hours,
+                  "minutes": _minutes,
+                  "priority": priorityDict[_priority],
+                };
+                
+                String uid = LocalCache.uid;
+                DatabaseService.updateData(
+                  'Users/${uid}/Tasks', {'${_title}': task});
                 Navigator.pop(context);
               }
             },
@@ -130,13 +146,13 @@ class TasksPage extends StatelessWidget {
     );
   }
 
-  Padding _priorityField(Priority? priority) {
+  Padding _priorityField() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 4.0,
         right: 16.0,
       ),
-      child: DropdownButtonFormField<Priority>(
+      child: DropdownButtonFormField<int?>(
         decoration: InputDecoration(
           labelText: "Priority *",
           filled: true,
@@ -149,20 +165,27 @@ class TasksPage extends StatelessWidget {
         ),
         items: const [
           DropdownMenuItem(
-            value: Priority.low,
+            value: 1,
             child: Text("Low"),
           ),
           DropdownMenuItem(
-            value: Priority.medium,
+            value: 2,
             child: Text("Medium"),
           ),
           DropdownMenuItem(
-            value: Priority.high,
+            value: 3,
             child: Text("High"),
           ),
         ],
         onChanged: (value) {
-          priority = value;
+          setState(() {
+            _priority = value;
+          });
+        },
+        onSaved: (value) {
+          setState(() {
+            _priority = value;
+          });
         },
         validator: (value) {
           if (value == null) {
@@ -174,7 +197,7 @@ class TasksPage extends StatelessWidget {
     );
   }
 
-  Padding _minutesField(int? minutes) {
+  Padding _minutesField() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 4.0,
@@ -210,7 +233,14 @@ class TasksPage extends StatelessWidget {
           ),
         ],
         onChanged: (value) {
-          minutes = value;
+          setState(() {
+            _minutes = value;
+          });
+        },
+        onSaved: (value) {
+          setState(() {
+            _minutes = value;
+          });
         },
         validator: (value) {
           if (value == null) {
@@ -222,7 +252,7 @@ class TasksPage extends StatelessWidget {
     );
   }
 
-  Padding _hoursField(int? hours) {
+  Padding _hoursField() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 16.0,
@@ -245,23 +275,27 @@ class TasksPage extends StatelessWidget {
                   value: index + 1,
                   child: Text('${index + 1} hour${index + 1 == 1 ? "" : "s"}'),
                 )),
-        onChanged: (value) {
-          hours = value;
-        },
         validator: (value) {
           if (value == null) {
             return "Required";
           }
           return null;
         },
+        onChanged: (value) {
+          setState(() {
+            _hours = value;
+          });
+        },
         onSaved: (value) {
-          hours = value;
+          setState(() {
+            _hours = value;
+          });
         },
       ),
     );
   }
 
-  Padding _dueDateField(DateTime? date) {
+  Padding _dueDateField() {
     return Padding(
       padding: const EdgeInsets.only(
         left: 16.0,
@@ -269,8 +303,15 @@ class TasksPage extends StatelessWidget {
         bottom: 32.0,
       ),
       child: DateTimeFormField(
-        onChanged: (newDate) {
-          date = newDate;
+        onChanged: (value) {
+          setState(() {
+            _date = value;
+          });
+        },
+        onSaved: (value) {
+          setState(() {
+            _date = value;
+          });
         },
         firstDate: DateTime.now(),
         lastDate: DateTime(2100),
@@ -295,7 +336,7 @@ class TasksPage extends StatelessWidget {
     );
   }
 
-  Padding _titleField(String? title) {
+  Padding _titleField() {
     return Padding(
       padding: const EdgeInsets.only(
         top: 16.0,
@@ -321,8 +362,15 @@ class TasksPage extends StatelessWidget {
           }
           return null;
         },
+        onChanged: (value) {
+          setState(() {
+            _title = value;
+          });
+        },
         onSaved: (value) {
-          title = value;
+          setState(() {
+            _title = value;
+          });
         },
       ),
     );
