@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:edugalaxy/pages/navbar.dart';
 import 'package:edugalaxy/database_functions.dart';
+import 'package:edugalaxy/local_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'home.dart';
@@ -33,7 +34,9 @@ class _LoginPageState extends State<LoginPage> {
         bool user_exists = await DatabaseService.dataExists('Users', user.uid);
         print(user_exists);
         if (user_exists) {
-            // TODO copy to local cache
+            Map? user_data = await DatabaseService.readData('Users/${user.uid}');
+            LocalCache.setData(user_data);
+            print(LocalCache.readData(''));
         } else {
             await DatabaseService.updateData('Users/${user.uid}/Tasks', {'initialised': true});
         }
