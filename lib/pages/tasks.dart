@@ -130,6 +130,7 @@ class _TasksPageState extends State<TasksPage> {
                   3: "High"
                 };
                 final Map<String, dynamic> task = {
+                  "User": LocalCache.uid,
                   "title": _title,
                   "dueDate": dateString,
                   "hours": _hours,
@@ -139,7 +140,7 @@ class _TasksPageState extends State<TasksPage> {
                 
                 String uid = LocalCache.uid;
                 DatabaseService.updateData(
-                  'Users/${uid}/Tasks', {'${_title}': task});
+                  'Tasks', {'${_title}': task});
                 Navigator.pop(context);
               }
             },

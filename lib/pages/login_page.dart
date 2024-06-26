@@ -41,8 +41,13 @@ class _LoginPageState extends State<LoginPage> {
             print(LocalCache.uid);
         } else {
             LocalCache.set_uid(user.uid);
+            String? user_name = user.displayName;
+            String? user_email = user.email;
             await DatabaseService.updateData(
-                'Users/${user.uid}/Tasks', {'initialised': true});
+                'Users/${user.uid}', {
+                    'username': user_name,
+                    'email': user_email
+                });
         }
         Navigator.pushReplacement(
           context,
