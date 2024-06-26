@@ -37,7 +37,7 @@ class _TasksPageState extends State<TasksPage> {
     });
   }
 
-  Future<void> _showTaskCreationSheet(BuildContext context) async {
+  /* Future<void> _showTaskCreationSheet(BuildContext context) async {
     final result = await showModalBottomSheet<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -84,13 +84,75 @@ class _TasksPageState extends State<TasksPage> {
         );
       },
     );
-    bool test = result == true;
-    print(test);
+    if (result == true) {
+      print('Task creation successful, fetching tasks');
+      _fetchTasks();
+    }
+  }*/
+
+  Future<void> _showTaskCreationSheet(BuildContext context) async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Container(
+            width: double.infinity,
+            color: Color.fromARGB(255, 206, 238, 255),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      "Create Task",
+                      style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _titleField(),
+                        _dueDateField(),
+                        _priorityField(),
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 8.0,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2 - 20,
+                              child: _hoursField(),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2 - 20,
+                              child: _minutesField(),
+                            )
+                          ],
+                        ),
+                        _submitTask(context),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
     if (result == true) {
       print('Task creation successful, fetching tasks');
       _fetchTasks();
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -200,13 +262,12 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Widget _priorityField() {
-    // return Padding(
-    //   padding: const EdgeInsets.only(
-    //     left: 4.0,
-    //     right: 16.0,
-    //   ),
-    //  child: 
-    return DropdownButtonFormField<int?>(
+    return Padding(
+      padding: const EdgeInsets.only(
+        left: 16.0,
+        right: 16.0,
+      ),
+     child: DropdownButtonFormField<int?>(
       decoration: InputDecoration(
         labelText: "Priority *",
         filled: true,
@@ -247,7 +308,7 @@ class _TasksPageState extends State<TasksPage> {
         }
         return null;
       },
-      //),
+      ),
     );
   }
 
@@ -259,6 +320,11 @@ class _TasksPageState extends State<TasksPage> {
     //   ),
     //   child: 
     return DropdownButtonFormField<int>(
+      padding: const EdgeInsets.only(
+        top: 32.0,
+        left: 8.0,
+        right: 16.0,
+      ),
       decoration: InputDecoration(
         labelText: "Minutes *",
         filled: true,
@@ -315,6 +381,11 @@ class _TasksPageState extends State<TasksPage> {
     //   ),
     //   child: 
     return DropdownButtonFormField<int>(
+      padding: const EdgeInsets.only(
+        top: 32.0,
+        left: 16.0,
+        right: 8.0,
+      ),
       decoration: InputDecoration(
         labelText: "Hours *",
         filled: true,
