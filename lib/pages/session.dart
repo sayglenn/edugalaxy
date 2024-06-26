@@ -1,4 +1,7 @@
+import 'package:edugalaxy/main.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
+import 'package:edugalaxy/local_cache.dart';
 
 class SessionCreator extends StatefulWidget {
   const SessionCreator({super.key});
@@ -30,7 +33,14 @@ class _SessionCreatorState extends State<SessionCreator> {
           height: 20,
         ),
         ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      SessionPage(sessionDuration: _currentHours.round())),
+            );
+          },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color.fromARGB(255, 154, 255, 158),
           ),
@@ -42,6 +52,147 @@ class _SessionCreatorState extends State<SessionCreator> {
           ),
         )
       ],
+    );
+  }
+}
+
+class SessionPage extends StatelessWidget {
+  final int sessionDuration;
+
+  const SessionPage({super.key, required this.sessionDuration});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.amber,
+          title: Text("Session Ongoing"),
+        ),
+        body: Container(
+          width: double.infinity,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                height: 30,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Color.fromARGB(255, 115, 128, 201),
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: TimerCountdown(
+                    format: CountDownTimerFormat.hoursMinutesSeconds,
+                    enableDescriptions: false,
+                    endTime: DateTime.now().add(
+                      Duration(
+                        hours: sessionDuration,
+                      ),
+                    ),
+                    colonsTextStyle: TextStyle(
+                      fontSize: 60,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                    timeTextStyle: TextStyle(
+                      fontSize: 60,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              TaskPicker(),
+              SizedBox(
+                height: 30,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 255, 140, 132)),
+                child: Text(
+                  "End Session",
+                  style: TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 40,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class TaskPicker extends StatelessWidget {
+  final Future<List<Map<String, dynamic>>> tasks;
+
+  TaskPicker({super.key}) : tasks = Future.value(LocalCache.getCachedTasks());
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: FutureBuilder<List<Map<String, dynamic>>>(
+        future: tasks,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error loading tasks'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return Center(child: Text('No tasks available'));
+          } else {
+            final tasks = snapshot.data!;
+            return ListView.builder(
+              itemCount: tasks.length,
+              itemBuilder: (context, index) {
+                final task = tasks[index];
+                return Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: ListTile(
+                        title: Text(
+                          task['title'],
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        trailing: Text(
+                          '${task['hours']} h ${task['minutes']} min',
+                          style: TextStyle(
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
     );
   }
 }

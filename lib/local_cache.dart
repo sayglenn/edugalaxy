@@ -16,8 +16,8 @@ class LocalCache {
 
     try {
       Map? tasksMap = await DatabaseService.readData('Tasks');
-      
-      tasksCache.clear();  // Clear any previous cache
+
+      tasksCache.clear(); // Clear any previous cache
 
       if (tasksMap != null) {
         tasksMap.forEach((key, value) {
@@ -47,15 +47,38 @@ class LocalCache {
     }
 
     try {
-      await DatabaseService.updateData(
-                  'Tasks', {'${_title}': task});
-      
+      await DatabaseService.updateData('Tasks', {'${_title}': task});
+
       // Retrieve the tasks again to update the cache
       await fetchAndCacheTasks();
-      
+
       print('Task added successfully.');
     } catch (e) {
       print('Error adding task: $e');
     }
+  }
+
+  static List<Map<String, dynamic>> sortTasks(
+      List<Map<String, dynamic>> tasks) {
+    tasks.sort((a, b) {
+      int dateComparison =
+          DateTime.parse(a['dueDate']).compareTo(DateTime.parse(b['dueDate']));
+      int firstPriority = a['priority'] == "Low"
+          ? 1
+          : a['priority'] == "Medium"
+              ? 2
+              : 3;
+      int secondPriority = b['priority'] == "Low"
+          ? 1
+          : a['priority'] == "Medium"
+              ? 2
+              : 3;
+      if (dateComparison != 0) {
+        return dateComparison;
+      } else {
+        return firstPriority - secondPriority;
+      }
+    });
+    return tasks;
   }
 }
