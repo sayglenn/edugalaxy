@@ -69,7 +69,12 @@ class SessionPage extends StatelessWidget {
         appBar: AppBar(
           automaticallyImplyLeading: false,
           backgroundColor: Colors.amber,
-          title: Text("Session Ongoing"),
+          title: Text(
+            "Study Session Ongoing",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         body: Container(
           width: double.infinity,
@@ -119,7 +124,7 @@ class SessionPage extends StatelessWidget {
                   Navigator.pop(context);
                 },
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 255, 140, 132)),
+                    backgroundColor: Color.fromARGB(255, 255, 198, 194)),
                 child: Text(
                   "End Session",
                   style: TextStyle(
@@ -161,10 +166,16 @@ class TaskPicker extends StatelessWidget {
               itemCount: tasks.length,
               itemBuilder: (context, index) {
                 final task = tasks[index];
+                Color taskColour = task['priority'] == "Low"
+                    ? Colors.green
+                    : task['priority'] == "Medium"
+                        ? Color.fromARGB(255, 254, 190, 41)
+                        : Colors.red;
                 return Padding(
                   padding: const EdgeInsets.all(12.0),
-                  child: Card(
+                  child: Card.outlined(
                     shape: RoundedRectangleBorder(
+                      side: new BorderSide(color: taskColour, width: 2.0),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     elevation: 5,

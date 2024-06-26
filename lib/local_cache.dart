@@ -38,7 +38,7 @@ class LocalCache {
   }
 
   static List<Map<String, dynamic>> getCachedTasks() {
-    return tasksCache.values.toList();
+    return sortTasks(tasksCache.values.toList());
   }
 
   static Future<void> addTask(String? _title, Map<String, dynamic> task) async {
