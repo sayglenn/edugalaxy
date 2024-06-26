@@ -1,6 +1,7 @@
 import 'package:edugalaxy/database_functions.dart';
 import 'package:edugalaxy/pages/login_page.dart';
 import 'package:edugalaxy/pages/navbar.dart';
+import 'package:edugalaxy/local_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -39,7 +40,27 @@ class AuthWrapper extends StatelessWidget {
           return Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasData) {
-          return NavBar();
+          final userId = snapshot.data?.uid;
+          
+          if (userId != null) {
+            LocalCache.set_uid(userId);
+
+            // Fetch and cache tasks before navigating to NavBar
+            return FutureBuilder(
+              future: LocalCache.fetchAndCacheTasks(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(child: CircularProgressIndicator());
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error loading tasks'));
+                }
+                return NavBar();
+              },
+            );
+          } else {
+            return Center(child: Text('Error: User ID is null'));
+          }
         } else {
           return LoginPage();
         }
