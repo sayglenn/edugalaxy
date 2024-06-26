@@ -39,6 +39,7 @@ class _LoginPageState extends State<LoginPage> {
             // Map? user_data = await DatabaseService.readData('Users/${user.uid}');
             LocalCache.set_uid(user.uid);
             print(LocalCache.uid);
+            await LocalCache.fetchAndCacheTasks();
         } else {
             LocalCache.set_uid(user.uid);
             String? user_name = user.displayName;
