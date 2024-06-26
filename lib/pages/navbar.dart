@@ -1,7 +1,9 @@
 import 'package:edugalaxy/pages/home.dart';
 import 'package:edugalaxy/pages/settings.dart';
 import 'package:edugalaxy/pages/tasks.dart';
+import 'package:edugalaxy/local_cache.dart';
 import 'package:flutter/material.dart';
+
 
 class NavBar extends StatefulWidget {
   const NavBar({super.key});
@@ -11,7 +13,13 @@ class NavBar extends StatefulWidget {
 }
 
 class _NavBarState extends State<NavBar> {
-  int currentPageIndex = 0;
+  int currentPageIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    currentPageIndex = LocalCache.autoClick ? 1 : 0;
+  }
 
   @override
   Widget build(BuildContext context) {

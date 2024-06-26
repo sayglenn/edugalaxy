@@ -27,6 +27,12 @@ class _TasksPageState extends State<TasksPage> {
   void initState() {
     super.initState();
     _fetchTasks();
+    if (LocalCache.autoClick) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showTaskCreationSheet(context);
+      });
+    }
+    LocalCache.autoClick = false;
   }
 
   void _fetchTasks() {
@@ -36,59 +42,6 @@ class _TasksPageState extends State<TasksPage> {
       print('Tasks fetched and set');
     });
   }
-
-  /* Future<void> _showTaskCreationSheet(BuildContext context) async {
-    final result = await showModalBottomSheet<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return SingleChildScrollView(
-          child: Container(
-            width: double.infinity,
-            color: Color.fromARGB(255, 206, 238, 255),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0),
-                  child: Text(
-                    "Create Task",
-                    style: TextStyle(
-                        decoration: TextDecoration.underline,
-                        fontSize: 36,
-                        fontWeight: FontWeight.w700),
-                  ),
-                ),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _titleField(),
-                      _dueDateField(),
-                      Row(
-                        children: [
-                          Expanded(child: _hoursField()),
-                          SizedBox(width: 8.0),
-                          Expanded(child: _minutesField()),
-                          SizedBox(width: 8.0),
-                          Expanded(child: _priorityField()),
-                        ],
-                      ),
-                      _submitTask(context),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-    if (result == true) {
-      print('Task creation successful, fetching tasks');
-      _fetchTasks();
-    }
-  }*/
 
   Future<void> _showTaskCreationSheet(BuildContext context) async {
     final result = await showModalBottomSheet<bool>(

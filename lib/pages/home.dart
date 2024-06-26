@@ -1,5 +1,7 @@
 import 'package:edugalaxy/pages/session.dart';
 import 'package:flutter/material.dart';
+import 'package:edugalaxy/pages/navbar.dart';
+import 'package:edugalaxy/local_cache.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -22,7 +24,15 @@ class HomePage extends StatelessWidget {
               TextButton(
                   style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 224, 244, 255)),
-                  onPressed: () {},
+                  onPressed: () {
+                    LocalCache.autoClick = true;
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NavBar(),
+                      ),
+                    );
+                  },
                   child: Text('Create Task')),
               TextButton(
                   style: TextButton.styleFrom(

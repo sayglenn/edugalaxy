@@ -3,6 +3,7 @@ import 'package:edugalaxy/database_functions.dart';
 class LocalCache {
   static String uid = '';
   static Map<String, Map<String, dynamic>> tasksCache = {};
+  static bool autoClick = false;
 
   static void set_uid(String _uid) {
     uid = _uid;
