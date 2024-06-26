@@ -1,3 +1,4 @@
+import 'package:edugalaxy/pages/session.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -27,7 +28,48 @@ class HomePage extends StatelessWidget {
                   style: TextButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 205, 255, 206),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    showModalBottomSheet<void>(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return Container(
+                          height: 250,
+                          child: const Padding(
+                            padding: EdgeInsets.all(20.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  "Create a new session",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 24.0),
+                                      child: Text(
+                                        "Hours:",
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                    SessionCreator(),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
                   child: Text('Create Session'))
             ],
           )
