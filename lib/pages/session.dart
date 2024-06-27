@@ -56,10 +56,41 @@ class _SessionCreatorState extends State<SessionCreator> {
   }
 }
 
-class SessionPage extends StatelessWidget {
+class SessionPage extends StatefulWidget {
   final int sessionDuration;
 
   const SessionPage({super.key, required this.sessionDuration});
+
+  @override
+  State<SessionPage> createState() => _SessionPageState();
+}
+
+class _SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      Navigator.pop(context);
+      print("You exited the application!");
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => BrokenSession(),
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +127,7 @@ class SessionPage extends StatelessWidget {
                     enableDescriptions: false,
                     endTime: DateTime.now().add(
                       Duration(
-                        hours: sessionDuration,
+                        hours: widget.sessionDuration,
                       ),
                     ),
                     colonsTextStyle: TextStyle(
@@ -116,10 +147,10 @@ class SessionPage extends StatelessWidget {
                 height: 30,
               ),
               TaskPicker(
-                sessionDuration: sessionDuration,
+                sessionDuration: widget.sessionDuration,
               ),
               SizedBox(
-                height: 30,
+                height: 10,
               ),
               ElevatedButton(
                 onPressed: () {
@@ -175,47 +206,145 @@ class TaskPicker extends StatelessWidget {
                 filteredTasks.add(task);
               }
             }
-            return ListView.builder(
-              itemCount: filteredTasks.length,
-              itemBuilder: (context, index) {
-                final task = filteredTasks[index];
-                Color taskColour = task['priority'] == "Low"
-                    ? Colors.green
-                    : task['priority'] == "Medium"
-                        ? Color.fromARGB(255, 254, 190, 41)
-                        : Colors.red;
-                return Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Card.outlined(
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(color: taskColour, width: 2.0),
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    elevation: 5,
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: ListTile(
-                        title: Text(
-                          task['title'],
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+            Widget remainingTimeCard = minutes == 0
+                ? SizedBox(
+                    height: 0,
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Card.outlined(
+                      color: Color.fromARGB(255, 115, 128, 201),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: ListTile(
+                          title: Text(
+                            "Free Time",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        trailing: Text(
-                          '${task['hours']} h ${task['minutes']} min',
-                          style: TextStyle(
-                            fontSize: 16,
+                          trailing: Text(
+                            '${minutes ~/ 60} h ${minutes - minutes ~/ 60 * 60} min',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: const Color.fromARGB(255, 220, 220, 220),
+                            ),
                           ),
                         ),
                       ),
                     ),
+                  );
+
+            return Column(
+              children: [
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: filteredTasks.length,
+                    itemBuilder: (context, index) {
+                      final task = filteredTasks[index];
+                      Color taskColour = task['priority'] == "Low"
+                          ? Colors.green
+                          : task['priority'] == "Medium"
+                              ? Color.fromARGB(255, 254, 190, 41)
+                              : Colors.red;
+                      return Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Card.outlined(
+                          shape: RoundedRectangleBorder(
+                            side: BorderSide(color: taskColour, width: 2.0),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child: ListTile(
+                              title: Text(
+                                task['title'],
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              trailing: Text(
+                                '${task['hours']} h ${task['minutes']} min',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
+                ),
+                remainingTimeCard,
+              ],
             );
           }
         },
+      ),
+    );
+  }
+}
+
+class BrokenSession extends StatelessWidget {
+  const BrokenSession({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(50.0),
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "You broke your session!",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                Text(
+                  "You left the application and the session was ended!",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    "Return to Home",
+                    style: TextStyle(
+                      fontSize: 16,
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
