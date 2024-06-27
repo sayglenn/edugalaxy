@@ -115,7 +115,9 @@ class SessionPage extends StatelessWidget {
               SizedBox(
                 height: 30,
               ),
-              TaskPicker(),
+              TaskPicker(
+                sessionDuration: sessionDuration,
+              ),
               SizedBox(
                 height: 30,
               ),
@@ -145,8 +147,10 @@ class SessionPage extends StatelessWidget {
 
 class TaskPicker extends StatelessWidget {
   final Future<List<Map<String, dynamic>>> tasks;
+  final int sessionDuration;
 
-  TaskPicker({super.key}) : tasks = Future.value(LocalCache.getCachedTasks());
+  TaskPicker({super.key, required this.sessionDuration})
+      : tasks = Future.value(LocalCache.getCachedTasks());
 
   @override
   Widget build(BuildContext context) {
@@ -161,11 +165,20 @@ class TaskPicker extends StatelessWidget {
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return Center(child: Text('No tasks available'));
           } else {
-            final tasks = snapshot.data!;
+            final List<Map<String, dynamic>> tasks = snapshot.data!;
+            int minutes = sessionDuration * 60;
+            final List<Map<String, dynamic>> filteredTasks = [];
+            for (Map<String, dynamic> task in tasks) {
+              int taskDuration = task['hours'] * 60 + task['minutes'];
+              if (taskDuration <= minutes) {
+                minutes -= taskDuration;
+                filteredTasks.add(task);
+              }
+            }
             return ListView.builder(
-              itemCount: tasks.length,
+              itemCount: filteredTasks.length,
               itemBuilder: (context, index) {
-                final task = tasks[index];
+                final task = filteredTasks[index];
                 Color taskColour = task['priority'] == "Low"
                     ? Colors.green
                     : task['priority'] == "Medium"
@@ -175,7 +188,7 @@ class TaskPicker extends StatelessWidget {
                   padding: const EdgeInsets.all(12.0),
                   child: Card.outlined(
                     shape: RoundedRectangleBorder(
-                      side: new BorderSide(color: taskColour, width: 2.0),
+                      side: BorderSide(color: taskColour, width: 2.0),
                       borderRadius: BorderRadius.circular(15),
                     ),
                     elevation: 5,

@@ -106,7 +106,6 @@ class _TasksPageState extends State<TasksPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -133,16 +132,43 @@ class _TasksPageState extends State<TasksPage> {
                     final formattedDate = dueDate != null
                         ? DateFormat('yyyy-MM-dd – hh:mm a').format(dueDate)
                         : 'No due date';
+                    Color taskColour = task['priority'] == "Low"
+                        ? Colors.green
+                        : task['priority'] == "Medium"
+                            ? Color.fromARGB(255, 254, 190, 41)
+                            : Colors.red;
 
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
-                      child: Card(
+                      child: Card.outlined(
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15),
+                          side: BorderSide(color: taskColour, width: 2.0),
                         ),
                         elevation: 5,
                         child: ListTile(
-                          title: Text(task['title'] ?? ''),
+                          title: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "${task['title']}",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                TextSpan(
+                                  text:
+                                      "  (${task['hours']}h ${task['minutes']}min)",
+                                  style: TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                           subtitle: Text('Due: $formattedDate'),
                           trailing: Text('Priority: ${task['priority'] ?? ''}'),
                         ),
@@ -220,47 +246,47 @@ class _TasksPageState extends State<TasksPage> {
         left: 16.0,
         right: 16.0,
       ),
-     child: DropdownButtonFormField<int?>(
-      decoration: InputDecoration(
-        labelText: "Priority *",
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.all(15),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(15),
-          borderSide: BorderSide.none,
+      child: DropdownButtonFormField<int?>(
+        decoration: InputDecoration(
+          labelText: "Priority *",
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.all(15),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(15),
+            borderSide: BorderSide.none,
+          ),
         ),
-      ),
-      items: const [
-        DropdownMenuItem(
-          value: 1,
-          child: Text("Low"),
-        ),
-        DropdownMenuItem(
-          value: 2,
-          child: Text("Medium"),
-        ),
-        DropdownMenuItem(
-          value: 3,
-          child: Text("High"),
-        ),
-      ],
-      onChanged: (value) {
-        setState(() {
-          _priority = value;
-        });
-      },
-      onSaved: (value) {
-        setState(() {
-          _priority = value;
-        });
-      },
-      validator: (value) {
-        if (value == null) {
-          return "Required";
-        }
-        return null;
-      },
+        items: const [
+          DropdownMenuItem(
+            value: 1,
+            child: Text("Low"),
+          ),
+          DropdownMenuItem(
+            value: 2,
+            child: Text("Medium"),
+          ),
+          DropdownMenuItem(
+            value: 3,
+            child: Text("High"),
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _priority = value;
+          });
+        },
+        onSaved: (value) {
+          setState(() {
+            _priority = value;
+          });
+        },
+        validator: (value) {
+          if (value == null) {
+            return "Required";
+          }
+          return null;
+        },
       ),
     );
   }
@@ -271,7 +297,7 @@ class _TasksPageState extends State<TasksPage> {
     //     left: 4.0,
     //     right: 4.0,
     //   ),
-    //   child: 
+    //   child:
     return DropdownButtonFormField<int>(
       padding: const EdgeInsets.only(
         top: 32.0,
@@ -332,7 +358,7 @@ class _TasksPageState extends State<TasksPage> {
     //     left: 16.0,
     //     right: 4.0,
     //   ),
-    //   child: 
+    //   child:
     return DropdownButtonFormField<int>(
       padding: const EdgeInsets.only(
         top: 32.0,
