@@ -170,7 +170,39 @@ class _TasksPageState extends State<TasksPage> {
                             ),
                           ),
                           subtitle: Text('Due: $formattedDate'),
-                          trailing: Text('Priority: ${task['priority'] ?? ''}'),
+                          trailing: IconButton(
+                            icon: Icon(Icons.check),
+                            onPressed: () async {
+                              final confirm = await showDialog<bool>(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text('Complete Task'),
+                                    content: Text('Are you sure you want to complete this task?'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context, false);
+                                        },
+                                        child: Text('No'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context, true);
+                                        },
+                                        child: Text('Yes'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                              if (confirm == true) {
+                                // Call the function to complete the task
+                                await LocalCache.deleteTask(task['title'], task, complete: true);
+                                _fetchTasks(); // Refresh tasks after completion
+                              }
+                            },
+                          ),
                         ),
                       ),
                     );
