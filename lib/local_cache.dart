@@ -3,6 +3,7 @@ import 'package:edugalaxy/database_functions.dart';
 class LocalCache {
   static String uid = '';
   static Map<String, Map<String, dynamic>> tasksCache = {};
+  static Map<String, Map<String, dynamic>> completedTasksCache = {};
   static bool autoClick = false;
 
   static void set_uid(String _uid) {
@@ -31,6 +32,21 @@ class LocalCache {
         });
       }
 
+      Map? completedTasksMap = await DatabaseService.readData('CompletedTasks');
+
+      completedTasksCache.clear(); // Clear any previous cache
+
+      if (completedTasksMap != null) {
+        completedTasksMap.forEach((key, value) {
+          if (value is Map) {
+            Map<String, dynamic> task = Map<String, dynamic>.from(value);
+            if (task['User'] == uid) {
+              tasksCache[key] = task;
+            }
+          }
+        });
+      }
+
       print('Tasks cached successfully.');
     } catch (e) {
       print('Error fetching tasks: $e');
@@ -38,6 +54,7 @@ class LocalCache {
   }
 
   static List<Map<String, dynamic>> getCachedTasks() {
+    // returns sorted task list
     return sortTasks(tasksCache.values.toList());
   }
 
@@ -50,10 +67,11 @@ class LocalCache {
     try {
       await DatabaseService.updateData('Tasks', {'${_title}': task});
 
-      // Retrieve the tasks again to update the cache
-      await fetchAndCacheTasks();
+      // Directly update the local cache
+      tasksCache[_title!] = task;
 
-      print('Task added successfully.');
+      // Print to confirm the addition
+      print('Task added and cache updated successfully.');
     } catch (e) {
       print('Error adding task: $e');
     }
@@ -61,6 +79,7 @@ class LocalCache {
 
   static List<Map<String, dynamic>> sortTasks(
       List<Map<String, dynamic>> tasks) {
+        // sort tasks based on due date first, followed by priority
     tasks.sort((a, b) {
       int dateComparison =
           DateTime.parse(a['dueDate']).compareTo(DateTime.parse(b['dueDate']));
@@ -81,5 +100,43 @@ class LocalCache {
       }
     });
     return tasks;
+  }
+
+  static Future<void> deleteTask(String? _title, Map<String, dynamic> task, {bool complete = false}) async {
+    if (uid.isEmpty) {
+      print('User ID is not set.');
+      return;
+    }
+
+    try {
+      if (complete) {
+        // remove task from current tasks and add to completed tasks
+        // delete from task database
+        await DatabaseService.deleteData('Tasks/${_title}');
+
+        // add to completed tasks
+        await DatabaseService.updateData('CompletedTasks', {'${_title}': task});
+
+        // directly removes from local cache
+        tasksCache.remove(_title!);
+
+        // add to completed tasks cache
+        completedTasksCache[_title!] = task;
+
+        // Print to confirm the completion
+        print('Task completed and cache updated successfully.');
+      } else {
+        // delete from task database
+        await DatabaseService.deleteData('Tasks/${_title}');
+
+        // directly removes from local cache
+        tasksCache.remove(_title!);
+
+        // Print to confirm the deletion
+        print('Task deleted and cache updated successfully.');
+      }
+    } catch (e) {
+      print('Error deleting task: $e');
+    }
   }
 }

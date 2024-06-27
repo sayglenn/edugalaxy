@@ -36,15 +36,15 @@ class AuthWrapper extends StatelessWidget {
     return StreamBuilder<User?>(
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasData) {
           final userId = snapshot.data?.uid;
-          
+
           if (userId != null) {
             LocalCache.set_uid(userId);
-
             // Fetch and cache tasks before navigating to NavBar
             return FutureBuilder(
               future: LocalCache.fetchAndCacheTasks(),

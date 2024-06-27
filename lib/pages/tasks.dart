@@ -119,7 +119,7 @@ class _TasksPageState extends State<TasksPage> {
               } else if (snapshot.hasError) {
                 return Center(child: Text('Error loading tasks'));
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No tasks available'));
+                return Center(child: Text('No tasks added'));
               } else {
                 final tasks = snapshot.data!;
                 return ListView.builder(
