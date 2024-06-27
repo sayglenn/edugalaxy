@@ -53,6 +53,7 @@ class _LoginPageState extends State<LoginPage> {
                 'email': user_email,
                 'profilePicUrl': profilePicUrl
                 });
+          await LocalCache.fetchAndCacheTasks();
         }
         Navigator.pushReplacement(
           context,
