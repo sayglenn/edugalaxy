@@ -114,7 +114,8 @@ class _TasksPageState extends State<TasksPage> {
     }
   }
 
-  Future<void> _showEditTaskSheet(BuildContext context, Map<String, dynamic> task) async {
+  Future<void> _showEditTaskSheet(
+      BuildContext context, Map<String, dynamic> task) async {
     _formKey.currentState?.reset();
 
     setState(() {
@@ -173,7 +174,8 @@ class _TasksPageState extends State<TasksPage> {
                             )
                           ],
                         ),
-                        _submitTask(context, isEdit: true, originalTitle: task['title']),
+                        _submitTask(context,
+                            isEdit: true, originalTitle: task['title']),
                       ],
                     ),
                   ),
@@ -190,18 +192,17 @@ class _TasksPageState extends State<TasksPage> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         appBar: TabBar(
-            tabs: [
-              Tab(text: "Incomplete Tasks"),
-              Tab(text: "Completed Tasks"),
-            ],
-          ),
+          tabs: [
+            Tab(text: "Incomplete Tasks"),
+            Tab(text: "Completed Tasks"),
+          ],
+        ),
         body: Column(
           children: [
             Expanded(
@@ -249,23 +250,25 @@ class _TasksPageState extends State<TasksPage> {
               final task = tasks[index];
               final dueDate = task['completedAt'] != null
                   ? DateTime.parse(task['completedAt'])
-                  : task['dueDate'] != null
-                    ? DateTime.parse(task['dueDate'])
-                    : null;
+                  : DateTime.parse(task['dueDate']);
               final formattedDate = dueDate != null
                   ? DateFormat('yyyy-MM-dd – hh:mm a').format(dueDate)
                   : 'No due date';
               Color taskColour = task['completedAt'] != null
                   ? Colors.transparent
                   : task['priority'] == "Low"
-                    ? Colors.green
-                    : task['priority'] == "Medium"
-                        ? Color.fromARGB(255, 254, 190, 41)
-                        : Colors.red;
+                      ? Colors.green
+                      : task['priority'] == "Medium"
+                          ? Color.fromARGB(255, 254, 190, 41)
+                          : Colors.red;
 
               return Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Card.outlined(
+                  color: dueDate.compareTo(DateTime.now()) < 0 &&
+                          task['completedAt'] == null
+                      ? Color.fromARGB(255, 255, 224, 227)
+                      : null,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                     side: BorderSide(color: taskColour, width: 2.0),
@@ -282,12 +285,17 @@ class _TasksPageState extends State<TasksPage> {
                                   text: "${task['title']}",
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                                    color:
+                                        dueDate.compareTo(DateTime.now()) < 0 &&
+                                                task['completedAt'] == null
+                                            ? Colors.red
+                                            : Colors.black,
                                     fontSize: 16,
                                   ),
                                 ),
                                 TextSpan(
-                                  text: "  (${task['hours']}h ${task['minutes']}min)",
+                                  text:
+                                      "  (${task['hours']}h ${task['minutes']}min)",
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 14,
@@ -303,22 +311,20 @@ class _TasksPageState extends State<TasksPage> {
                         ? Text('Due: $formattedDate')
                         : Text('Completed: $formattedDate'),
                     trailing: tasksFuture == _incompleteTasks
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.edit),
-                                onPressed: () => _showEditTaskSheet(context, task),
-                                iconSize: 16.0,
-                                constraints: BoxConstraints(),
-                                padding: EdgeInsets.zero,
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.check),
-                                onPressed: () => _completeTask(task),
-                              ),
-                            ]
-                        )
+                        ? Row(mainAxisSize: MainAxisSize.min, children: [
+                            IconButton(
+                              icon: Icon(Icons.edit),
+                              onPressed: () =>
+                                  _showEditTaskSheet(context, task),
+                              iconSize: 16.0,
+                              constraints: BoxConstraints(),
+                              padding: EdgeInsets.zero,
+                            ),
+                            IconButton(
+                              icon: Icon(Icons.check),
+                              onPressed: () => _completeTask(task),
+                            ),
+                          ])
                         : IconButton(
                             icon: Icon(Icons.delete),
                             onPressed: () => _deleteTask(task),
@@ -389,7 +395,8 @@ class _TasksPageState extends State<TasksPage> {
     }
   }
 
-  Row _submitTask(BuildContext context, {bool isEdit = false, String? originalTitle}) {
+  Row _submitTask(BuildContext context,
+      {bool isEdit = false, String? originalTitle}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -428,7 +435,8 @@ class _TasksPageState extends State<TasksPage> {
                 }
 
                 Navigator.pop(context, true);
-                print('Task ${isEdit ? 'updated' : 'added'} and returning true');
+                print(
+                    'Task ${isEdit ? 'updated' : 'added'} and returning true');
               }
             },
           ),
