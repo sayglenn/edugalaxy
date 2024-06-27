@@ -51,7 +51,16 @@ class _TasksPageState extends State<TasksPage> {
     });
   }
 
+  void reset_options() {
+    _title = null;
+    _date = null;
+    _hours = null;
+    _minutes = null;
+    _priority = null;
+  }
+
   Future<void> _showTaskCreationSheet(BuildContext context) async {
+    reset_options();
     final result = await showModalBottomSheet<bool>(
       context: context,
       builder: (BuildContext context) {
