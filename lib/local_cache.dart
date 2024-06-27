@@ -4,6 +4,7 @@ class LocalCache {
   static String uid = '';
   static Map<String, Map<String, dynamic>> tasksCache = {};
   static Map<String, Map<String, dynamic>> completedTasksCache = {};
+  static Map<String, dynamic> userInfo = {};
   static bool autoClick = false;
 
   static void set_uid(String _uid) {
@@ -45,6 +46,11 @@ class LocalCache {
             }
           }
         });
+      }
+
+      Map? _userInfo = await DatabaseService.readData('Users/${uid}');
+      if (_userInfo != null) {
+        userInfo = Map<String, dynamic>.from(_userInfo);
       }
 
       print('Tasks cached successfully.');
@@ -154,5 +160,19 @@ class LocalCache {
       }
     });
     return tasks;
+  }
+
+  static Future<void> updateUserInfo(Map<String, dynamic> newUserInfo) async {
+    if (uid.isEmpty) {
+      print('User ID is not set.');
+      return;
+    }
+    try {
+      userInfo = newUserInfo;
+      await DatabaseService.updateData('Users/${uid}', newUserInfo);
+    } catch (e) {
+      print('Error updating user information: $e');
+    }
+    
   }
 }
