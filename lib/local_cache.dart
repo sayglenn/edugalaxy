@@ -11,6 +11,12 @@ class LocalCache {
     uid = _uid;
   }
 
+  static void clear_cache() {
+    tasksCache.clear();
+    completedTasksCache.clear();
+    userInfo.clear();
+  }
+
   static Future<void> fetchAndCacheTasks() async {
     if (uid.isEmpty) {
       print('User ID is not set.');

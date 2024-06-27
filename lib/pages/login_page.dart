@@ -42,11 +42,17 @@ class _LoginPageState extends State<LoginPage> {
           print(LocalCache.uid);
           await LocalCache.fetchAndCacheTasks();
         } else {
+          LocalCache.clear_cache();
           LocalCache.set_uid(user.uid);
+          String? profilePicUrl = user.photoURL;
           String? user_name = user.displayName;
           String? user_email = user.email;
-          await DatabaseService.updateData('Users/${user.uid}',
-              {'username': user_name, 'email': user_email});
+          await DatabaseService.updateData(
+            'Users/${user.uid}', {
+                'username': user_name, 
+                'email': user_email,
+                'profilePicUrl': profilePicUrl
+                });
         }
         Navigator.pushReplacement(
           context,
