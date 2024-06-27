@@ -1,11 +1,10 @@
 import 'package:date_field/date_field.dart';
-import 'package:edugalaxy/models/task_model.dart';
 import 'package:edugalaxy/database_functions.dart';
 import 'package:edugalaxy/local_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-enum Priority { low, medium, high }
+// enum Priority { low, medium, high }
 
 class TasksPage extends StatefulWidget {
   const TasksPage({super.key});
