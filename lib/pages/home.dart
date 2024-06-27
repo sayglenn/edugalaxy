@@ -26,7 +26,7 @@ class HomePage extends StatelessWidget {
                       backgroundColor: Color.fromARGB(255, 224, 244, 255)),
                   onPressed: () {
                     LocalCache.autoClick = true;
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => NavBar(),
