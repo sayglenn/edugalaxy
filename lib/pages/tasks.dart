@@ -21,7 +21,8 @@ class _TasksPageState extends State<TasksPage> {
   int? _hours;
   int? _minutes;
   int? _priority;
-  Future<List<Map<String, dynamic>>>? _tasks;
+  Future<List<Map<String, dynamic>>>? _incompleteTasks;
+  Future<List<Map<String, dynamic>>>? _completedTasks;
 
   @override
   void initState() {
@@ -38,7 +39,14 @@ class _TasksPageState extends State<TasksPage> {
   void _fetchTasks() {
     // Fetch tasks for the current user
     setState(() {
-      _tasks = Future.value(LocalCache.getCachedTasks() ?? []);
+      _incompleteTasks = Future.value(LocalCache.getCachedTasks() ?? []);
+      _incompleteTasks!.then((tasks) {
+        print("Incomplete Tasks: $tasks");
+      });
+      _completedTasks = Future.value(LocalCache.getCompletedTasks() ?? []);
+      _completedTasks!.then((tasks) {
+        print("Completed Tasks: $tasks");
+      });
       print('Tasks fetched and set');
     });
   }
@@ -106,48 +114,168 @@ class _TasksPageState extends State<TasksPage> {
     }
   }
 
+  Future<void> _showEditTaskSheet(BuildContext context, Map<String, dynamic> task) async {
+    _formKey.currentState?.reset();
+
+    setState(() {
+      _title = task['title'];
+      _date = DateTime.parse(task['dueDate']);
+      _hours = task['hours'];
+      _minutes = task['minutes'];
+      _priority = task['priority'] == "Low"
+          ? 1
+          : task['priority'] == "Medium"
+              ? 2
+              : 3;
+    });
+
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          child: Container(
+            width: double.infinity,
+            color: Color.fromARGB(255, 206, 238, 255),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      "Edit Task",
+                      style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 36,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _titleField(),
+                        _dueDateField(),
+                        _priorityField(),
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 8.0,
+                          children: [
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2 - 20,
+                              child: _hoursField(),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 2 - 20,
+                              child: _minutesField(),
+                            )
+                          ],
+                        ),
+                        _submitTask(context, isEdit: true, originalTitle: task['title']),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (result == true) {
+      _fetchTasks();
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Expanded(
-          child: FutureBuilder<List<Map<String, dynamic>>>(
-            future: _tasks,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error loading tasks'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(child: Text('No tasks added'));
-              } else {
-                final tasks = snapshot.data!;
-                return ListView.builder(
-                  itemCount: tasks.length,
-                  itemBuilder: (context, index) {
-                    final task = tasks[index];
-                    final dueDate = task['dueDate'] != null
-                        ? DateTime.parse(task['dueDate'])
-                        : null;
-                    final formattedDate = dueDate != null
-                        ? DateFormat('yyyy-MM-dd – hh:mm a').format(dueDate)
-                        : 'No due date';
-                    Color taskColour = task['priority'] == "Low"
-                        ? Colors.green
-                        : task['priority'] == "Medium"
-                            ? Color.fromARGB(255, 254, 190, 41)
-                            : Colors.red;
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: TabBar(
+            tabs: [
+              Tab(text: "Incomplete Tasks"),
+              Tab(text: "Completed Tasks"),
+            ],
+          ),
+        body: Column(
+          children: [
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildTaskList(_incompleteTasks),
+                  _buildTaskList(_completedTasks),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                const Spacer(),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: FloatingActionButton(
+                    onPressed: () => _showTaskCreationSheet(context),
+                    shape: const CircleBorder(),
+                    child: const Icon(Icons.add),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Card.outlined(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
-                          side: BorderSide(color: taskColour, width: 2.0),
-                        ),
-                        elevation: 5,
-                        child: ListTile(
-                          title: RichText(
+  Widget _buildTaskList(Future<List<Map<String, dynamic>>>? tasksFuture) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: tasksFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error loading tasks'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return Center(child: Text('No tasks'));
+        } else {
+          final tasks = snapshot.data!;
+          return ListView.builder(
+            itemCount: tasks.length,
+            itemBuilder: (context, index) {
+              final task = tasks[index];
+              final dueDate = task['completedAt'] != null
+                  ? DateTime.parse(task['completedAt'])
+                  : task['dueDate'] != null
+                    ? DateTime.parse(task['dueDate'])
+                    : null;
+              final formattedDate = dueDate != null
+                  ? DateFormat('yyyy-MM-dd – hh:mm a').format(dueDate)
+                  : 'No due date';
+              Color taskColour = task['completedAt'] != null
+                  ? Colors.transparent
+                  : task['priority'] == "Low"
+                    ? Colors.green
+                    : task['priority'] == "Medium"
+                        ? Color.fromARGB(255, 254, 190, 41)
+                        : Colors.red;
+
+              return Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Card.outlined(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                    side: BorderSide(color: taskColour, width: 2.0),
+                  ),
+                  elevation: 5,
+                  child: ListTile(
+                    title: Row(
+                      children: [
+                        Expanded(
+                          child: RichText(
                             text: TextSpan(
                               children: [
                                 TextSpan(
@@ -159,8 +287,7 @@ class _TasksPageState extends State<TasksPage> {
                                   ),
                                 ),
                                 TextSpan(
-                                  text:
-                                      "  (${task['hours']}h ${task['minutes']}min)",
+                                  text: "  (${task['hours']}h ${task['minutes']}min)",
                                   style: TextStyle(
                                     color: Colors.grey,
                                     fontSize: 14,
@@ -169,67 +296,100 @@ class _TasksPageState extends State<TasksPage> {
                               ],
                             ),
                           ),
-                          subtitle: Text('Due: $formattedDate'),
-                          trailing: IconButton(
-                            icon: Icon(Icons.check),
-                            onPressed: () async {
-                              final confirm = await showDialog<bool>(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text('Complete Task'),
-                                    content: Text('Are you sure you want to complete this task?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, false);
-                                        },
-                                        child: Text('No'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, true);
-                                        },
-                                        child: Text('Yes'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                              if (confirm == true) {
-                                // Call the function to complete the task
-                                await LocalCache.deleteTask(task['title'], task, complete: true);
-                                _fetchTasks(); // Refresh tasks after completion
-                              }
-                            },
-                          ),
                         ),
-                      ),
-                    );
-                  },
-                );
-              }
+                      ],
+                    ),
+                    subtitle: tasksFuture == _incompleteTasks
+                        ? Text('Due: $formattedDate')
+                        : Text('Completed: $formattedDate'),
+                    trailing: tasksFuture == _incompleteTasks
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () => _showEditTaskSheet(context, task),
+                                iconSize: 16.0,
+                                constraints: BoxConstraints(),
+                                padding: EdgeInsets.zero,
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.check),
+                                onPressed: () => _completeTask(task),
+                              ),
+                            ]
+                        )
+                        : IconButton(
+                            icon: Icon(Icons.delete),
+                            onPressed: () => _deleteTask(task),
+                          ),
+                  ),
+                ),
+              );
             },
-          ),
-        ),
-        Row(
-          children: [
-            const Spacer(),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: FloatingActionButton(
-                onPressed: () => _showTaskCreationSheet(context),
-                shape: const CircleBorder(),
-                child: const Icon(Icons.add),
-              ),
-            ),
-          ],
-        ),
-      ],
+          );
+        }
+      },
     );
   }
 
-  Row _submitTask(BuildContext context) {
+  Future<void> _deleteTask(Map<String, dynamic> task) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Delete Task'),
+          content: Text('Are you sure you want to delete this task?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      // Mark task as completed and refresh tasks
+      await LocalCache.deleteTask(task['title'], task);
+      _fetchTasks();
+    }
+  }
+
+  Future<void> _completeTask(Map<String, dynamic> task) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Complete Task'),
+          content: Text('Are you sure you want to complete this task?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      // Mark task as completed and refresh tasks
+      await LocalCache.deleteTask(task['title'], task, complete: true);
+      _fetchTasks();
+    }
+  }
+
+  Row _submitTask(BuildContext context, {bool isEdit = false, String? originalTitle}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -261,9 +421,14 @@ class _TasksPageState extends State<TasksPage> {
                   "priority": priorityDict[_priority],
                 };
 
-                await LocalCache.addTask(_title, task);
+                if (isEdit && originalTitle != null) {
+                  await LocalCache.updateTask(originalTitle, task);
+                } else {
+                  await LocalCache.addTask(_title, task);
+                }
+
                 Navigator.pop(context, true);
-                print('Task added and returning true');
+                print('Task ${isEdit ? 'updated' : 'added'} and returning true');
               }
             },
           ),
@@ -279,6 +444,7 @@ class _TasksPageState extends State<TasksPage> {
         right: 16.0,
       ),
       child: DropdownButtonFormField<int?>(
+        value: _priority,
         decoration: InputDecoration(
           labelText: "Priority *",
           filled: true,
@@ -331,6 +497,7 @@ class _TasksPageState extends State<TasksPage> {
     //   ),
     //   child:
     return DropdownButtonFormField<int>(
+      value: _minutes,
       padding: const EdgeInsets.only(
         top: 32.0,
         left: 8.0,
@@ -392,6 +559,7 @@ class _TasksPageState extends State<TasksPage> {
     //   ),
     //   child:
     return DropdownButtonFormField<int>(
+      value: _hours,
       padding: const EdgeInsets.only(
         top: 32.0,
         left: 16.0,
@@ -483,6 +651,7 @@ class _TasksPageState extends State<TasksPage> {
         bottom: 32.0,
       ),
       child: TextFormField(
+        initialValue: _title,
         decoration: InputDecoration(
           labelText: "Title *",
           filled: true,

@@ -41,7 +41,7 @@ class LocalCache {
           if (value is Map) {
             Map<String, dynamic> task = Map<String, dynamic>.from(value);
             if (task['User'] == uid) {
-              tasksCache[key] = task;
+              completedTasksCache[key] = task;
             }
           }
         });
@@ -56,6 +56,10 @@ class LocalCache {
   static List<Map<String, dynamic>> getCachedTasks() {
     // returns sorted task list
     return sortTasks(tasksCache.values.toList());
+  }
+
+  static List<Map<String, dynamic>> getCompletedTasks() {
+    return sortTasks(completedTasksCache.values.toList(), completed: true);
   }
 
   static Future<void> addTask(String? _title, Map<String, dynamic> task) async {
@@ -77,12 +81,62 @@ class LocalCache {
     }
   }
 
+  static Future<void> deleteTask(String? _title, Map<String, dynamic> task, {bool complete = false}) async {
+    if (uid.isEmpty) {
+      print('User ID is not set.');
+      return;
+    }
+
+    try {
+      if (complete) {
+        // remove task from current tasks and add to completed tasks
+        // delete from task database
+        await DatabaseService.deleteData('Tasks/${_title}');
+
+        task['completedAt'] = DateTime.now().toIso8601String();
+
+        // add to completed tasks
+        await DatabaseService.updateData('CompletedTasks', {'${_title}': task});
+
+        // directly removes from local cache
+        tasksCache.remove(_title!);
+
+        // add to completed tasks cache
+        completedTasksCache[_title!] = task;
+
+        // Print to confirm the completion
+        print('Task completed and cache updated successfully.');
+      } else {
+        // delete from task database
+        await DatabaseService.deleteData('Tasks/${_title}');
+        await DatabaseService.deleteData('CompletedTasks/${_title}');
+
+        // directly removes from local cache
+        tasksCache.remove(_title!);
+        completedTasksCache.remove(_title!);
+
+        // Print to confirm the deletion
+        print('Task deleted and cache updated successfully.');
+      }
+    } catch (e) {
+      print('Error deleting task: $e');
+    }
+  }
+
+  static Future<void> updateTask(String? _title, Map<String, dynamic> task) async {
+    await DatabaseService.deleteData('Tasks/${_title}');
+    tasksCache.remove(_title!);
+    String? newTitle = task['title'];
+    await DatabaseService.updateData('Tasks/${newTitle}', task);
+    tasksCache[newTitle!] = task;
+  }
+  
   static List<Map<String, dynamic>> sortTasks(
-      List<Map<String, dynamic>> tasks) {
-        // sort tasks based on due date first, followed by priority
+      List<Map<String, dynamic>> tasks, {completed = false}) {
     tasks.sort((a, b) {
-      int dateComparison =
-          DateTime.parse(a['dueDate']).compareTo(DateTime.parse(b['dueDate']));
+      int dateComparison = (completed)
+        ? DateTime.parse(b['completedAt']).compareTo(DateTime.parse(a['completedAt']))
+        : DateTime.parse(a['dueDate']).compareTo(DateTime.parse(b['dueDate']));
       int firstPriority = a['priority'] == "Low"
           ? 1
           : a['priority'] == "Medium"
@@ -100,43 +154,5 @@ class LocalCache {
       }
     });
     return tasks;
-  }
-
-  static Future<void> deleteTask(String? _title, Map<String, dynamic> task, {bool complete = false}) async {
-    if (uid.isEmpty) {
-      print('User ID is not set.');
-      return;
-    }
-
-    try {
-      if (complete) {
-        // remove task from current tasks and add to completed tasks
-        // delete from task database
-        await DatabaseService.deleteData('Tasks/${_title}');
-
-        // add to completed tasks
-        await DatabaseService.updateData('CompletedTasks', {'${_title}': task});
-
-        // directly removes from local cache
-        tasksCache.remove(_title!);
-
-        // add to completed tasks cache
-        completedTasksCache[_title!] = task;
-
-        // Print to confirm the completion
-        print('Task completed and cache updated successfully.');
-      } else {
-        // delete from task database
-        await DatabaseService.deleteData('Tasks/${_title}');
-
-        // directly removes from local cache
-        tasksCache.remove(_title!);
-
-        // Print to confirm the deletion
-        print('Task deleted and cache updated successfully.');
-      }
-    } catch (e) {
-      print('Error deleting task: $e');
-    }
   }
 }
