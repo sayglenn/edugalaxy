@@ -128,7 +128,9 @@ class _TasksPageState extends State<TasksPage> {
 
     setState(() {
       _title = task['title'];
-      _date = DateTime.parse(task['dueDate']);
+      _date = DateTime.parse(task['dueDate']).compareTo(DateTime.now()) < 0
+          ? DateTime.now().add(const Duration(days: 1))
+          : DateTime.parse(task['dueDate']);
       _hours = task['hours'];
       _minutes = task['minutes'];
       _priority = task['priority'] == "Low"
@@ -460,7 +462,7 @@ class _TasksPageState extends State<TasksPage> {
         right: 16.0,
       ),
       child: DropdownButtonFormField<int?>(
-        value: _priority,
+        value: _priority ?? 1,
         decoration: InputDecoration(
           labelText: "Priority *",
           filled: true,
@@ -513,7 +515,7 @@ class _TasksPageState extends State<TasksPage> {
     //   ),
     //   child:
     return DropdownButtonFormField<int>(
-      value: _minutes,
+      value: _minutes ?? 0,
       padding: const EdgeInsets.only(
         top: 32.0,
         left: 8.0,
@@ -578,7 +580,7 @@ class _TasksPageState extends State<TasksPage> {
     //   ),
     //   child:
     return DropdownButtonFormField<int>(
-      value: _hours,
+      value: _hours ?? 1,
       padding: const EdgeInsets.only(
         top: 32.0,
         left: 16.0,
@@ -638,6 +640,7 @@ class _TasksPageState extends State<TasksPage> {
             _date = value;
           });
         },
+        initialValue: _date ?? DateTime.now().add(const Duration(days: 1)),
         firstDate: DateTime.now(),
         lastDate: DateTime(2100),
         decoration: InputDecoration(
@@ -663,6 +666,7 @@ class _TasksPageState extends State<TasksPage> {
 
   Padding _titleField() {
     return Padding(
+      key: const Key('titleField'),
       padding: const EdgeInsets.only(
         top: 16.0,
         left: 16.0,
