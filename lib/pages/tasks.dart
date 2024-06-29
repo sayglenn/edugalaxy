@@ -592,10 +592,10 @@ class _TasksPageState extends State<TasksPage> {
         ),
       ),
       items: List.generate(
-          8,
+          9,
           (index) => DropdownMenuItem(
-                value: index + 1,
-                child: Text('${index + 1} hour${index + 1 == 1 ? "" : "s"}'),
+                value: index,
+                child: Text('${index} hour${index <= 1 ? "" : "s"}'),
               )),
       validator: (value) {
         if (value == null) {
