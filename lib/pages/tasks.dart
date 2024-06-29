@@ -561,6 +561,9 @@ class _TasksPageState extends State<TasksPage> {
         if (value == null) {
           return "Required";
         }
+        if (_hours == 0 && value == 0) {
+          return "Minimum 15 minutes";
+        }
         return null;
       },
       //),
