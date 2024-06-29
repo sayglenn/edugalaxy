@@ -162,7 +162,7 @@ class LocalCache {
       if (dateComparison != 0) {
         return dateComparison;
       } else {
-        return firstPriority - secondPriority;
+        return secondPriority - firstPriority;
       }
     });
     return tasks;
