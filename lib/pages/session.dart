@@ -7,25 +7,25 @@ class SessionCreator extends StatefulWidget {
   const SessionCreator({super.key});
 
   @override
-  State<SessionCreator> createState() => _SessionCreatorState();
+  State<SessionCreator> createState() => SessionCreatorState();
 }
 
-class _SessionCreatorState extends State<SessionCreator> {
-  double _currentHours = 4;
+class SessionCreatorState extends State<SessionCreator> {
+  double currentHours = 4;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Slider(
-          value: _currentHours,
+          value: currentHours,
           min: 1,
           max: 8,
           divisions: 7,
-          label: _currentHours.round().toString(),
+          label: currentHours.round().toString(),
           onChanged: (double value) {
             setState(() {
-              _currentHours = value;
+              currentHours = value;
             });
           },
         ),
@@ -38,7 +38,7 @@ class _SessionCreatorState extends State<SessionCreator> {
               context,
               MaterialPageRoute(
                   builder: (context) =>
-                      SessionPage(sessionDuration: _currentHours.round())),
+                      SessionPage(sessionDuration: currentHours.round())),
             );
           },
           style: ElevatedButton.styleFrom(
@@ -62,10 +62,10 @@ class SessionPage extends StatefulWidget {
   const SessionPage({super.key, required this.sessionDuration});
 
   @override
-  State<SessionPage> createState() => _SessionPageState();
+  State<SessionPage> createState() => SessionPageState();
 }
 
-class _SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
+class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();

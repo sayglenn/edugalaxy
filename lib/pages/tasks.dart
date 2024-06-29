@@ -4,22 +4,20 @@ import 'package:edugalaxy/local_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-// enum Priority { low, medium, high }
-
 class TasksPage extends StatefulWidget {
   const TasksPage({super.key});
 
   @override
-  _TasksPageState createState() => _TasksPageState();
+  State<TasksPage> createState() => TasksPageState();
 }
 
-class _TasksPageState extends State<TasksPage> {
+class TasksPageState extends State<TasksPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String? _title;
-  DateTime? _date;
-  int? _hours;
-  int? _minutes;
-  int? _priority;
+  String? title;
+  DateTime? date;
+  int? hours;
+  int? minutes;
+  int? priority;
   Future<List<Map<String, dynamic>>>? _incompleteTasks;
   Future<List<Map<String, dynamic>>>? _completedTasks;
 
@@ -50,16 +48,16 @@ class _TasksPageState extends State<TasksPage> {
     });
   }
 
-  void reset_options() {
-    _title = null;
-    _date = null;
-    _hours = null;
-    _minutes = null;
-    _priority = null;
+  void resetOptions() {
+    title = null;
+    date = null;
+    hours = null;
+    minutes = null;
+    priority = null;
   }
 
   Future<void> _showTaskCreationSheet(BuildContext context) async {
-    reset_options();
+    resetOptions();
     final result = await showModalBottomSheet<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -127,13 +125,13 @@ class _TasksPageState extends State<TasksPage> {
     _formKey.currentState?.reset();
 
     setState(() {
-      _title = task['title'];
-      _date = DateTime.parse(task['dueDate']).compareTo(DateTime.now()) < 0
+      title = task['title'];
+      date = DateTime.parse(task['dueDate']).compareTo(DateTime.now()) < 0
           ? DateTime.now().add(const Duration(days: 1))
           : DateTime.parse(task['dueDate']);
-      _hours = task['hours'];
-      _minutes = task['minutes'];
-      _priority = task['priority'] == "Low"
+      hours = task['hours'];
+      minutes = task['minutes'];
+      priority = task['priority'] == "Low"
           ? 1
           : task['priority'] == "Medium"
               ? 2
@@ -423,7 +421,7 @@ class _TasksPageState extends State<TasksPage> {
             onPressed: () async {
               if (_formKey.currentState!.validate()) {
                 _formKey.currentState!.save();
-                String? dateString = _date?.toIso8601String();
+                String? dateString = date?.toIso8601String();
                 Map<int, String> priorityDict = {
                   1: "Low",
                   2: "Medium",
@@ -431,17 +429,17 @@ class _TasksPageState extends State<TasksPage> {
                 };
                 final Map<String, dynamic> task = {
                   "User": LocalCache.uid,
-                  "title": _title,
+                  "title": title,
                   "dueDate": dateString,
-                  "hours": _hours,
-                  "minutes": _minutes,
-                  "priority": priorityDict[_priority],
+                  "hours": hours,
+                  "minutes": minutes,
+                  "priority": priorityDict[priority],
                 };
 
                 if (isEdit && originalTitle != null) {
                   await LocalCache.updateTask(originalTitle, task);
                 } else {
-                  await LocalCache.addTask(_title, task);
+                  await LocalCache.addTask(title, task);
                 }
 
                 Navigator.pop(context, true);
@@ -462,7 +460,7 @@ class _TasksPageState extends State<TasksPage> {
         right: 16.0,
       ),
       child: DropdownButtonFormField<int?>(
-        value: _priority ?? 1,
+        value: priority ?? 1,
         decoration: InputDecoration(
           labelText: "Priority *",
           filled: true,
@@ -489,12 +487,12 @@ class _TasksPageState extends State<TasksPage> {
         ],
         onChanged: (value) {
           setState(() {
-            _priority = value;
+            priority = value;
           });
         },
         onSaved: (value) {
           setState(() {
-            _priority = value;
+            priority = value;
           });
         },
         validator: (value) {
@@ -508,14 +506,8 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Widget _minutesField() {
-    // return Padding(
-    //   padding: const EdgeInsets.only(
-    //     left: 4.0,
-    //     right: 4.0,
-    //   ),
-    //   child:
     return DropdownButtonFormField<int>(
-      value: _minutes ?? 0,
+      value: minutes ?? 0,
       padding: const EdgeInsets.only(
         top: 32.0,
         left: 8.0,
@@ -551,12 +543,12 @@ class _TasksPageState extends State<TasksPage> {
       ],
       onChanged: (value) {
         setState(() {
-          _minutes = value;
+          minutes = value;
         });
       },
       onSaved: (value) {
         setState(() {
-          _minutes = value;
+          minutes = value;
         });
       },
       validator: (value) {
@@ -573,14 +565,8 @@ class _TasksPageState extends State<TasksPage> {
   }
 
   Widget _hoursField() {
-    // return Padding(
-    //   padding: const EdgeInsets.only(
-    //     left: 16.0,
-    //     right: 4.0,
-    //   ),
-    //   child:
     return DropdownButtonFormField<int>(
-      value: _hours ?? 1,
+      value: hours ?? 1,
       padding: const EdgeInsets.only(
         top: 32.0,
         left: 16.0,
@@ -610,12 +596,12 @@ class _TasksPageState extends State<TasksPage> {
       },
       onChanged: (value) {
         setState(() {
-          _hours = value;
+          hours = value;
         });
       },
       onSaved: (value) {
         setState(() {
-          _hours = value;
+          hours = value;
         });
       },
       //),
@@ -632,15 +618,15 @@ class _TasksPageState extends State<TasksPage> {
       child: DateTimeFormField(
         onChanged: (value) {
           setState(() {
-            _date = value;
+            date = value;
           });
         },
         onSaved: (value) {
           setState(() {
-            _date = value;
+            date = value;
           });
         },
-        initialValue: _date ?? DateTime.now().add(const Duration(days: 1)),
+        initialValue: date ?? DateTime.now().add(const Duration(days: 1)),
         firstDate: DateTime.now(),
         lastDate: DateTime(2100),
         decoration: InputDecoration(
@@ -674,7 +660,7 @@ class _TasksPageState extends State<TasksPage> {
         bottom: 32.0,
       ),
       child: TextFormField(
-        initialValue: _title,
+        initialValue: title,
         decoration: InputDecoration(
           labelText: "Title *",
           filled: true,
@@ -694,12 +680,12 @@ class _TasksPageState extends State<TasksPage> {
         },
         onChanged: (value) {
           setState(() {
-            _title = value;
+            title = value;
           });
         },
         onSaved: (value) {
           setState(() {
-            _title = value;
+            title = value;
           });
         },
       ),
