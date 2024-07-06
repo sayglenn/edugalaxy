@@ -12,6 +12,8 @@ void main() {
     tasksPageState.hours = 1;
     tasksPageState.minutes = 30;
     tasksPageState.priority = 1;
+
+    // Reset options and ensure that all values are null
     tasksPageState.resetOptions();
     expect(tasksPageState.title, null);
     expect(tasksPageState.date, null);
