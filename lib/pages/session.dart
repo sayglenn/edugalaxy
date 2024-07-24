@@ -66,6 +66,41 @@ class SessionPage extends StatefulWidget {
 }
 
 class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
+
+  static List<Map<String, dynamic>> filteredTasks = [];
+
+  void deleteTasks(List<Map<String, dynamic>> filteredTasks) {
+    filteredTasks.forEach((task) {
+      LocalCache.deleteTask(task['title'], task, complete: true);
+    });
+  }
+
+  Future<void> _endSession() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('End Session'),
+          content: Text('By ending the session, note that all tasks will be considered incomplete and your planet will die. Do you confirm to end session?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text('No'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text('Yes'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      Navigator.pop(context);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -130,6 +165,10 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
                         hours: widget.sessionDuration,
                       ),
                     ),
+                    onEnd: () {
+                      deleteTasks(filteredTasks);
+                      Navigator.pop(context); //Can replace with display of final planet @glenn
+                    },
                     colonsTextStyle: TextStyle(
                       fontSize: 60,
                       fontWeight: FontWeight.bold,
@@ -153,8 +192,8 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
                 height: 10,
               ),
               ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
+                onPressed: () async {
+                  await _endSession();
                 },
                 style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(255, 255, 198, 194)),
@@ -179,6 +218,7 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
 class TaskPicker extends StatelessWidget {
   final Future<List<Map<String, dynamic>>> tasks;
   final int sessionDuration;
+  //static final List<Map<String, dynamic>> filteredTasks = [];
 
   TaskPicker({super.key, required this.sessionDuration})
       : tasks = Future.value(LocalCache.getCachedTasks());
@@ -206,6 +246,7 @@ class TaskPicker extends StatelessWidget {
                 filteredTasks.add(task);
               }
             }
+            SessionPageState.filteredTasks = filteredTasks;
             Widget remainingTimeCard = minutes == 0
                 ? SizedBox(
                     height: 0,
