@@ -460,7 +460,7 @@ class TasksPageState extends State<TasksPage> {
         right: 16.0,
       ),
       child: DropdownButtonFormField<int?>(
-        value: priority ?? 1,
+        value: priority,
         decoration: InputDecoration(
           labelText: "Priority *",
           filled: true,
@@ -507,7 +507,7 @@ class TasksPageState extends State<TasksPage> {
 
   Widget _minutesField() {
     return DropdownButtonFormField<int>(
-      value: minutes ?? 0,
+      value: minutes,
       padding: const EdgeInsets.only(
         top: 32.0,
         left: 8.0,
@@ -566,7 +566,7 @@ class TasksPageState extends State<TasksPage> {
 
   Widget _hoursField() {
     return DropdownButtonFormField<int>(
-      value: hours ?? 1,
+      value: hours,
       padding: const EdgeInsets.only(
         top: 32.0,
         left: 16.0,
