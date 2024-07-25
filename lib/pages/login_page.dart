@@ -31,9 +31,10 @@ class _LoginPageState extends State<LoginPage> {
       final UserCredential userCredential =
           await _auth.signInWithCredential(credential);
       final User? user = userCredential.user;
+      final DatabaseService databaseService = DatabaseService();
 
       if (user != null) {
-        bool user_exists = await DatabaseService.dataExists('Users', user.uid);
+        bool user_exists = await databaseService.dataExists('Users', user.uid);
         print(user_exists);
         if (user_exists) {
           print(LocalCache.uid);
@@ -47,12 +48,11 @@ class _LoginPageState extends State<LoginPage> {
           String? profilePicUrl = user.photoURL;
           String? user_name = user.displayName;
           String? user_email = user.email;
-          await DatabaseService.updateData(
-            'Users/${user.uid}', {
-                'username': user_name, 
-                'email': user_email,
-                'profilePicUrl': profilePicUrl
-                });
+          await databaseService.updateData('Users/${user.uid}', {
+            'username': user_name,
+            'email': user_email,
+            'profilePicUrl': profilePicUrl
+          });
           await LocalCache.fetchAndCacheTasks();
         }
         Navigator.pushReplacement(
