@@ -1,4 +1,5 @@
 import 'package:edugalaxy/database_functions.dart';
+import 'package:uuid/uuid.dart';
 
 class LocalCache {
   static String uid = '';
@@ -7,6 +8,11 @@ class LocalCache {
   static Map<String, dynamic> userInfo = {};
   static bool autoClick = false;
   static DatabaseService databaseService = DatabaseService();
+  static Map<String, dynamic> currentSession = {
+    'planetType': 1,
+    'destroyed': false
+  };
+  static final Uuid _uuid = Uuid();
 
   static void set_uid(String _uid) {
     uid = _uid;
@@ -183,6 +189,38 @@ class LocalCache {
       await databaseService.updateData('Users/${uid}', newUserInfo);
     } catch (e) {
       print('Error updating user information: $e');
+    }
+  }
+
+  static Future<void> destroyPlanet() async {
+    if (uid.isEmpty) {
+      print('User ID is not set.');
+      return;
+    }
+    try {
+      String uniqueKey = _uuid.v4();
+      currentSession['destroyed'] = true;
+      currentSession['uid'] = uid;
+      await databaseService.updateData('Planets/${uniqueKey}', currentSession);
+      currentSession['destroyed'] = false;
+      currentSession['planetType'] = 1;
+    } catch (e) {
+      print('Error destroying planet: $e');
+    }
+  }
+
+  static Future<void> completePlanet() async {
+    if (uid.isEmpty) {
+      print('User ID is not set.');
+      return;
+    }
+    try {
+      String uniqueKey = _uuid.v4();
+      currentSession['uid'] = uid;
+      await databaseService.updateData('Planets/${uniqueKey}', currentSession);
+      currentSession['planetType'] = 1;
+    } catch (e) {
+      print('Error destroying planet: $e');
     }
   }
 }

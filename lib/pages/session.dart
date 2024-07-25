@@ -66,7 +66,6 @@ class SessionPage extends StatefulWidget {
 }
 
 class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
-
   static List<Map<String, dynamic>> filteredTasks = [];
 
   void deleteTasks(List<Map<String, dynamic>> filteredTasks) {
@@ -81,7 +80,8 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
       builder: (context) {
         return AlertDialog(
           title: Text('End Session'),
-          content: Text('By ending the session, note that all tasks will be considered incomplete and your planet will die. Do you confirm to end session?'),
+          content: Text(
+              'By ending the session, note that all tasks will be considered incomplete and your planet will die. Do you confirm to end session?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -97,6 +97,7 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
     );
 
     if (confirmed == true) {
+      await LocalCache.destroyPlanet();
       Navigator.pop(context);
     }
   }
@@ -116,6 +117,7 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
+      LocalCache.destroyPlanet();
       Navigator.pop(context);
       print("You exited the application!");
       Navigator.push(
@@ -167,7 +169,9 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
                     ),
                     onEnd: () {
                       deleteTasks(filteredTasks);
-                      Navigator.pop(context); //Can replace with display of final planet @glenn
+                      LocalCache.completePlanet();
+                      Navigator.pop(
+                          context); //Can replace with display of final planet @glenn
                     },
                     colonsTextStyle: TextStyle(
                       fontSize: 60,
