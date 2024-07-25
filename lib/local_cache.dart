@@ -6,6 +6,7 @@ class LocalCache {
   static Map<String, Map<String, dynamic>> completedTasksCache = {};
   static Map<String, dynamic> userInfo = {};
   static bool autoClick = false;
+  static DatabaseService databaseService = DatabaseService();
 
   static void set_uid(String _uid) {
     uid = _uid;
@@ -24,7 +25,7 @@ class LocalCache {
     }
 
     try {
-      Map? tasksMap = await DatabaseService.readData('Tasks');
+      Map? tasksMap = await databaseService.readData('Tasks');
 
       tasksCache.clear(); // Clear any previous cache
 
@@ -39,7 +40,7 @@ class LocalCache {
         });
       }
 
-      Map? completedTasksMap = await DatabaseService.readData('CompletedTasks');
+      Map? completedTasksMap = await databaseService.readData('CompletedTasks');
 
       completedTasksCache.clear(); // Clear any previous cache
 
@@ -54,7 +55,7 @@ class LocalCache {
         });
       }
 
-      Map? _userInfo = await DatabaseService.readData('Users/${uid}');
+      Map? _userInfo = await databaseService.readData('Users/${uid}');
       if (_userInfo != null) {
         userInfo = Map<String, dynamic>.from(_userInfo);
       }
@@ -81,7 +82,7 @@ class LocalCache {
     }
 
     try {
-      await DatabaseService.updateData('Tasks', {'${_title}': task});
+      await databaseService.updateData('Tasks', {'${_title}': task});
 
       // Directly update the local cache
       tasksCache[_title!] = task;
@@ -93,7 +94,8 @@ class LocalCache {
     }
   }
 
-  static Future<void> deleteTask(String? _title, Map<String, dynamic> task, {bool complete = false}) async {
+  static Future<void> deleteTask(String? _title, Map<String, dynamic> task,
+      {bool complete = false}) async {
     if (uid.isEmpty) {
       print('User ID is not set.');
       return;
@@ -103,12 +105,12 @@ class LocalCache {
       if (complete) {
         // remove task from current tasks and add to completed tasks
         // delete from task database
-        await DatabaseService.deleteData('Tasks/${_title}');
+        await databaseService.deleteData('Tasks/${_title}');
 
         task['completedAt'] = DateTime.now().toIso8601String();
 
         // add to completed tasks
-        await DatabaseService.updateData('CompletedTasks', {'${_title}': task});
+        await databaseService.updateData('CompletedTasks', {'${_title}': task});
 
         // directly removes from local cache
         tasksCache.remove(_title!);
@@ -120,8 +122,8 @@ class LocalCache {
         print('Task completed and cache updated successfully.');
       } else {
         // delete from task database
-        await DatabaseService.deleteData('Tasks/${_title}');
-        await DatabaseService.deleteData('CompletedTasks/${_title}');
+        await databaseService.deleteData('Tasks/${_title}');
+        await databaseService.deleteData('CompletedTasks/${_title}');
 
         // directly removes from local cache
         tasksCache.remove(_title!);
@@ -135,20 +137,23 @@ class LocalCache {
     }
   }
 
-  static Future<void> updateTask(String? _title, Map<String, dynamic> task) async {
-    await DatabaseService.deleteData('Tasks/${_title}');
+  static Future<void> updateTask(
+      String? _title, Map<String, dynamic> task) async {
+    await databaseService.deleteData('Tasks/${_title}');
     tasksCache.remove(_title!);
     String? newTitle = task['title'];
-    await DatabaseService.updateData('Tasks/${newTitle}', task);
+    await databaseService.updateData('Tasks/${newTitle}', task);
     tasksCache[newTitle!] = task;
   }
-  
-  static List<Map<String, dynamic>> sortTasks(
-      List<Map<String, dynamic>> tasks, {completed = false}) {
+
+  static List<Map<String, dynamic>> sortTasks(List<Map<String, dynamic>> tasks,
+      {completed = false}) {
     tasks.sort((a, b) {
       int dateComparison = (completed)
-        ? DateTime.parse(b['completedAt']).compareTo(DateTime.parse(a['completedAt']))
-        : DateTime.parse(a['dueDate']).compareTo(DateTime.parse(b['dueDate']));
+          ? DateTime.parse(b['completedAt'])
+              .compareTo(DateTime.parse(a['completedAt']))
+          : DateTime.parse(a['dueDate'])
+              .compareTo(DateTime.parse(b['dueDate']));
       int firstPriority = a['priority'] == "Low"
           ? 1
           : a['priority'] == "Medium"
@@ -175,10 +180,9 @@ class LocalCache {
     }
     try {
       userInfo = newUserInfo;
-      await DatabaseService.updateData('Users/${uid}', newUserInfo);
+      await databaseService.updateData('Users/${uid}', newUserInfo);
     } catch (e) {
       print('Error updating user information: $e');
     }
-    
   }
 }
