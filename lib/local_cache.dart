@@ -8,9 +8,10 @@ class LocalCache {
   static Map<String, dynamic> userInfo = {};
   static bool autoClick = false;
   static DatabaseService databaseService = DatabaseService();
-
-  static Map<String, dynamic> currentSession = {'planetType': 1, 'destroyed': false};
-
+  static Map<String, dynamic> currentSession = {
+    'planetType': 1,
+    'destroyed': false
+  };
   static final Uuid _uuid = Uuid();
 
   static void set_uid(String _uid) {
@@ -200,7 +201,7 @@ class LocalCache {
       String uniqueKey = _uuid.v4();
       currentSession['destroyed'] = true;
       currentSession['uid'] = uid;
-      await DatabaseService.updateData('Planets/${uniqueKey}', currentSession);
+      await databaseService.updateData('Planets/${uniqueKey}', currentSession);
       currentSession['destroyed'] = false;
       currentSession['planetType'] = 1;
     } catch (e) {
@@ -216,7 +217,7 @@ class LocalCache {
     try {
       String uniqueKey = _uuid.v4();
       currentSession['uid'] = uid;
-      await DatabaseService.updateData('Planets/${uniqueKey}', currentSession);
+      await databaseService.updateData('Planets/${uniqueKey}', currentSession);
       currentSession['planetType'] = 1;
     } catch (e) {
       print('Error destroying planet: $e');
