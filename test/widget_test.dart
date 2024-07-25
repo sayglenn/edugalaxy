@@ -1,16 +1,10 @@
 import 'package:edugalaxy/pages/tasks.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:edugalaxy/local_cache.dart';
 import 'package:edugalaxy/pages/home.dart';
 import 'package:edugalaxy/pages/session.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() {
-  // setUpAll(() async {
-  //   // Initialize Firebase before tests run
-  //   await Firebase.initializeApp();
-  // });
   testWidgets('Empty Fields results in Required markers',
       (WidgetTester tester) async {
     // Renders the TasksPage widget for testing.
