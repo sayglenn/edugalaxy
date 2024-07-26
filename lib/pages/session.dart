@@ -1,7 +1,12 @@
-import 'package:edugalaxy/main.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:edugalaxy/local_cache.dart';
+
+Map<int, String> planetNames = {
+  1: "earth",
+};
 
 class SessionCreator extends StatefulWidget {
   const SessionCreator({super.key});
@@ -56,6 +61,57 @@ class SessionCreatorState extends State<SessionCreator> {
   }
 }
 
+class PlanetImage extends StatefulWidget {
+  final int totalSeconds;
+  final String planetName;
+
+  PlanetImage({
+    super.key,
+    required this.totalSeconds,
+    required this.planetName,
+  });
+
+  @override
+  State<PlanetImage> createState() => _PlanetImageState();
+}
+
+class _PlanetImageState extends State<PlanetImage> {
+  Timer? timer;
+  int elapsedSeconds = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    timer = Timer.periodic(Duration(milliseconds: 1000), (timer) {
+      setState(() {
+        elapsedSeconds += 1;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int imageIndex = (elapsedSeconds / (widget.totalSeconds / 4)).floor() + 1;
+    AssetImage planetImage =
+        AssetImage('lib/assets/${widget.planetName}/$imageIndex.jpg');
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(500),
+      child: Image(
+        image: planetImage,
+        height: 110,
+        width: 110,
+      ),
+    );
+  }
+}
+
 class SessionPage extends StatefulWidget {
   final int sessionDuration;
 
@@ -65,8 +121,12 @@ class SessionPage extends StatefulWidget {
   State<SessionPage> createState() => SessionPageState();
 }
 
-class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
+class SessionPageState extends State<SessionPage>
+    with WidgetsBindingObserver, SingleTickerProviderStateMixin {
   static List<Map<String, dynamic>> filteredTasks = [];
+  late AnimationController _controller;
+  late Animation<double> _planetAnimation;
+  late Animation<double> _shadowAnimation;
 
   void deleteTasks(List<Map<String, dynamic>> filteredTasks) {
     filteredTasks.forEach((task) {
@@ -81,7 +141,7 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
         return AlertDialog(
           title: Text('End Session'),
           content: Text(
-              'By ending the session, note that all tasks will be considered incomplete and your planet will die. Do you confirm to end session?'),
+              'By ending the session, note that all tasks will be considered incomplete and your planet will be destroyed. Are you sure you want to end the session?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
@@ -106,11 +166,28 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _controller = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _planetAnimation =
+        Tween<double>(begin: 0, end: -15).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
+
+    _shadowAnimation =
+        Tween<double>(begin: 70, end: 35).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeInOut,
+    ));
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _controller.dispose();
     super.dispose();
   }
 
@@ -131,6 +208,8 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    String planetName = planetNames[LocalCache.currentSession['planetType']]!;
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -149,6 +228,42 @@ class SessionPageState extends State<SessionPage> with WidgetsBindingObserver {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              SizedBox(
+                height: 30,
+              ),
+              AnimatedBuilder(
+                animation: _planetAnimation,
+                builder: (context, child) {
+                  return Transform.translate(
+                    offset: Offset(0, _planetAnimation.value),
+                    child: child,
+                  );
+                },
+                child: PlanetImage(
+                  totalSeconds: widget.sessionDuration * 60 * 60,
+                  planetName: planetName,
+                ),
+              ),
+              AnimatedBuilder(
+                animation: _shadowAnimation,
+                builder: (context, child) {
+                  return Container(
+                    height: 1,
+                    width: _shadowAnimation.value,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset: Offset(0, 3),
+                        )
+                      ],
+                    ),
+                  );
+                },
+              ),
               SizedBox(
                 height: 30,
               ),
@@ -344,6 +459,17 @@ class BrokenSession extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    String planet = planetNames[LocalCache.currentSession['planetType']]!;
+
+    ClipRRect destroyedPlanet = ClipRRect(
+      borderRadius: BorderRadius.circular(500),
+      child: Image(
+        image: AssetImage('lib/assets/$planet/1.jpg'),
+        height: 110,
+        width: 110,
+      ),
+    );
+
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -354,6 +480,10 @@ class BrokenSession extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                destroyedPlanet,
+                SizedBox(
+                  height: 15,
+                ),
                 Text(
                   "You broke your session!",
                   style: TextStyle(
