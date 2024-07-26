@@ -201,6 +201,7 @@ class LocalCache {
       String uniqueKey = _uuid.v4();
       currentSession['destroyed'] = true;
       currentSession['uid'] = uid;
+      currentSession['timeOfPlanet'] = DateTime.now().toIso8601String();
       await databaseService.updateData('Planets/${uniqueKey}', currentSession);
       currentSession['destroyed'] = false;
       currentSession['planetType'] = 1;
@@ -217,6 +218,7 @@ class LocalCache {
     try {
       String uniqueKey = _uuid.v4();
       currentSession['uid'] = uid;
+      currentSession['timeOfPlanet'] = DateTime.now().toIso8601String();
       await databaseService.updateData('Planets/${uniqueKey}', currentSession);
       currentSession['planetType'] = 1;
     } catch (e) {
