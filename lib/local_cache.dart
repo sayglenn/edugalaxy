@@ -6,6 +6,7 @@ class LocalCache {
   static Map<String, Map<String, dynamic>> tasksCache = {};
   static Map<String, Map<String, dynamic>> completedTasksCache = {};
   static Map<String, dynamic> userInfo = {};
+  static Map<String, Map<String, dynamic>> planetsCache = {};
   static bool autoClick = false;
   static DatabaseService databaseService = DatabaseService();
   static Map<String, dynamic> currentSession = {
@@ -22,6 +23,7 @@ class LocalCache {
     tasksCache.clear();
     completedTasksCache.clear();
     userInfo.clear();
+    planetsCache.clear();
   }
 
   static Future<void> fetchAndCacheTasks() async {
@@ -64,6 +66,18 @@ class LocalCache {
       Map? _userInfo = await databaseService.readData('Users/${uid}');
       if (_userInfo != null) {
         userInfo = Map<String, dynamic>.from(_userInfo);
+      }
+
+      Map? _planets = await databaseService.readData('Planets');
+      if (_planets != null) {
+        _planets.forEach((key, value) {
+          if (value is Map) {
+            Map<String, dynamic> planet = Map<String, dynamic>.from(value);
+            if (planet['uid'] == uid) {
+              planetsCache[key] = planet;
+            }
+          }
+        });
       }
 
       print('Tasks cached successfully.');
@@ -203,6 +217,7 @@ class LocalCache {
       currentSession['uid'] = uid;
       currentSession['timeOfPlanet'] = DateTime.now().toIso8601String();
       await databaseService.updateData('Planets/${uniqueKey}', currentSession);
+      planetsCache[uniqueKey!] = currentSession;
       currentSession['destroyed'] = false;
       currentSession['planetType'] = 1;
     } catch (e) {
@@ -220,6 +235,7 @@ class LocalCache {
       currentSession['uid'] = uid;
       currentSession['timeOfPlanet'] = DateTime.now().toIso8601String();
       await databaseService.updateData('Planets/${uniqueKey}', currentSession);
+      planetsCache[uniqueKey!] = currentSession;
       currentSession['planetType'] = 1;
     } catch (e) {
       print('Error destroying planet: $e');

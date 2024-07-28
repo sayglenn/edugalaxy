@@ -3,8 +3,16 @@
 // import 'package:edugalaxy/pages/navbar.dart';
 // import 'package:edugalaxy/local_cache.dart';
 
-// class HomePage extends StatelessWidget {
+// class HomePage extends StatefulWidget {
 //   const HomePage({super.key});
+
+//   @override
+//   _HomePageState createState() => _HomePageState();
+// }
+
+// class _HomePageState extends State<HomePage> {
+//   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+//   int? _selectedPlanetType;
 
 //   @override
 //   Widget build(BuildContext context) {
@@ -22,68 +30,67 @@
 //             alignment: MainAxisAlignment.spaceEvenly,
 //             children: [
 //               TextButton(
-//                   style: TextButton.styleFrom(
-//                       backgroundColor: Color.fromARGB(255, 224, 244, 255)),
-//                   onPressed: () {
-//                     LocalCache.autoClick = true;
-//                     Navigator.pushReplacement(
-//                       context,
-//                       MaterialPageRoute(
-//                         builder: (context) => NavBar(),
-//                       ),
-//                     );
-//                   },
-//                   child: Text('Create Task')),
+//                 style: TextButton.styleFrom(
+//                     backgroundColor: Color.fromARGB(255, 224, 244, 255)),
+//                 onPressed: () {
+//                   LocalCache.autoClick = true;
+//                   Navigator.pushReplacement(
+//                     context,
+//                     MaterialPageRoute(
+//                       builder: (context) => NavBar(),
+//                     ),
+//                   );
+//                 },
+//                 child: Text('Create Task'),
+//               ),
 //               TextButton(
-//                   style: TextButton.styleFrom(
-//                     backgroundColor: Color.fromARGB(255, 205, 255, 206),
-//                   ),
-//                   onPressed: () {
-//                     showModalBottomSheet<void>(
-//                       context: context,
-//                       builder: (BuildContext context) {
-//                         return Container(
-//                           height: 250,
-//                           child: const Padding(
-//                             padding: EdgeInsets.all(20.0),
-//                             child: Column(
-//                               children: [
-//                                 Text(
+//                 style: TextButton.styleFrom(
+//                   backgroundColor: Color.fromARGB(255, 205, 255, 206),
+//                 ),
+//                 onPressed: () {
+//                   showModalBottomSheet<void>(
+//                     context: context,
+//                     builder: (BuildContext context) {
+//                       return SingleChildScrollView(
+//                         child: Container(
+//                           padding: EdgeInsets.all(20.0),
+//                           child: Column(
+//                             crossAxisAlignment: CrossAxisAlignment.start,
+//                             children: [
+//                               Center(
+//                                 child: Text(
 //                                   "Create a new session",
 //                                   style: TextStyle(
 //                                     fontSize: 20,
 //                                     fontWeight: FontWeight.bold,
 //                                   ),
 //                                 ),
-//                                 SizedBox(
-//                                   height: 20,
+//                               ),
+//                               SizedBox(
+//                                 height: 20,
+//                               ),
+//                               _planetType(),
+//                               Padding(
+//                                 padding: EdgeInsets.only(left: 24.0),
+//                                 child: Text(
+//                                   "Hours:",
+//                                   style: TextStyle(
+//                                     fontSize: 16,
+//                                   ),
 //                                 ),
-//                                 Column(
-//                                   crossAxisAlignment: CrossAxisAlignment.start,
-//                                   children: [
-//                                     _planetType(),
-//                                     Padding(
-//                                       padding: EdgeInsets.only(left: 24.0),
-//                                       child: Text(
-//                                         "Hours:",
-//                                         style: TextStyle(
-//                                           fontSize: 16,
-//                                         ),
-//                                       ),
-//                                     ),
-//                                     SessionCreator(),
-//                                   ],
-//                                 ),
-//                               ],
-//                             ),
+//                               ),
+//                               SessionCreator(),
+//                             ],
 //                           ),
-//                         );
-//                       },
-//                     );
-//                   },
-//                   child: Text('Create Session'))
+//                         ),
+//                       );
+//                     },
+//                   );
+//                 },
+//                 child: Text('Create Session'),
+//               ),
 //             ],
-//           )
+//           ),
 //         ],
 //       ),
 //     );
@@ -94,8 +101,10 @@
 //       padding: const EdgeInsets.only(
 //         left: 16.0,
 //         right: 16.0,
+//         bottom: 32.0,
 //       ),
 //       child: DropdownButtonFormField<int?>(
+//         value: _selectedPlanetType,
 //         decoration: InputDecoration(
 //           labelText: "Planet Type *",
 //           filled: true,
@@ -111,15 +120,22 @@
 //             value: 1,
 //             child: Text("Earth"),
 //           ),
+//           DropdownMenuItem(
+//             value: 2,
+//             child: Text("Sci-Fi"),
+//           ),
 //         ],
 //         onChanged: (value) {
 //           setState(() {
-//             LocalCache.currentSession['Planet Type'] = value;
+//             _selectedPlanetType = value;
+//             LocalCache.currentSession['planetType'] = value;
 //           });
 //         },
 //         onSaved: (value) {
 //           setState(() {
-//             LocalCache.currentSession['Planet Type'] = value;
+//             _selectedPlanetType = value;
+//             //print("Hi I am $value");
+//             LocalCache.currentSession['planetType'] = value;
 //           });
 //         },
 //         validator: (value) {
@@ -146,7 +162,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int? _selectedPlanetType = 1;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  int? _selectedPlanetType;
 
   @override
   Widget build(BuildContext context) {
@@ -188,33 +205,36 @@ class _HomePageState extends State<HomePage> {
                       return SingleChildScrollView(
                         child: Container(
                           padding: EdgeInsets.all(20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Center(
-                                child: Text(
-                                  "Create a new session",
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Center(
+                                  child: Text(
+                                    "Create a new session",
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              _planetType(),
-                              Padding(
-                                padding: EdgeInsets.only(left: 24.0),
-                                child: Text(
-                                  "Hours:",
-                                  style: TextStyle(
-                                    fontSize: 16,
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                _planetType(),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 24.0),
+                                  child: Text(
+                                    "Hours:",
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SessionCreator(),
-                            ],
+                                SessionCreator(formKey: _formKey),
+                              ],
+                            ),
                           ),
                         ),
                       );
@@ -253,6 +273,10 @@ class _HomePageState extends State<HomePage> {
           DropdownMenuItem(
             value: 1,
             child: Text("Earth"),
+          ),
+          DropdownMenuItem(
+            value: 2,
+            child: Text("Sci-Fi"),
           ),
         ],
         onChanged: (value) {
