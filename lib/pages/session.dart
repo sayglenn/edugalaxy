@@ -544,69 +544,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:edugalaxy/local_cache.dart';
-
-Map<int, String> planetNames = {
-  1: "earth",
-  2: "sci-fi",
-};
-
-class SessionCreator extends StatefulWidget {
-  final GlobalKey<FormState> formKey;
-
-  const SessionCreator({super.key, required this.formKey});
-
-  @override
-  State<SessionCreator> createState() => SessionCreatorState();
-}
-
-class SessionCreatorState extends State<SessionCreator> {
-  double currentHours = 4;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Slider(
-          value: currentHours,
-          min: 1,
-          max: 8,
-          divisions: 7,
-          label: currentHours.round().toString(),
-          onChanged: (double value) {
-            setState(() {
-              currentHours = value;
-            });
-          },
-        ),
-        SizedBox(
-          height: 20,
-        ),
-        ElevatedButton(
-          onPressed: () {
-            if (widget.formKey.currentState!.validate()) {
-              widget.formKey.currentState!.save();
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        SessionPage(sessionDuration: currentHours.round())),
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 154, 255, 158),
-          ),
-          child: Text(
-            "Submit",
-            style: TextStyle(
-              color: Color.fromARGB(255, 50, 128, 53),
-            ),
-          ),
-        )
-      ],
-    );
-  }
-}
+import 'package:edugalaxy/pages/navbar.dart';
+import 'package:edugalaxy/pages/home.dart';
 
 class PlanetImage extends StatefulWidget {
   final int totalSeconds;
@@ -705,8 +644,7 @@ class SessionPageState extends State<SessionPage>
 
     if (confirmed == true) {
       await LocalCache.destroyPlanet();
-      Navigator.pop(context);
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => BrokenSession(leftApp: false),
@@ -748,9 +686,8 @@ class SessionPageState extends State<SessionPage>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       LocalCache.destroyPlanet();
-      Navigator.pop(context);
       print("You exited the application!");
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => BrokenSession(leftApp: true),
@@ -838,8 +775,12 @@ class SessionPageState extends State<SessionPage>
                     onEnd: () {
                       deleteTasks(filteredTasks);
                       LocalCache.completePlanet();
-                      Navigator.pop(
-                          context); //Can replace with display of final planet @glenn
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => NavBar(),
+                        ),
+                      ); //Can replace with display of final planet
                     },
                     colonsTextStyle: TextStyle(
                       fontSize: 60,
@@ -1063,7 +1004,13 @@ class BrokenSession extends StatelessWidget {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => NavBar(),
+                      ),
+                      (Route<dynamic> route) => false,
+                    );
                   },
                   child: Text(
                     "Return to Home",
