@@ -1,18 +1,21 @@
 import 'package:edugalaxy/database_functions.dart';
 import 'package:uuid/uuid.dart';
 
+Map<int, String> planetNames = {
+  1: "earth",
+  2: "sci-fi",
+};
+
 class LocalCache {
   static String uid = '';
   static Map<String, Map<String, dynamic>> tasksCache = {};
   static Map<String, Map<String, dynamic>> completedTasksCache = {};
   static Map<String, dynamic> userInfo = {};
   static Map<String, Map<String, dynamic>> planetsCache = {};
+  static List<Map<String, dynamic>> fetchedPlanets = [];
   static bool autoClick = false;
   static DatabaseService databaseService = DatabaseService();
-  static Map<String, dynamic> currentSession = {
-    'planetType': 1,
-    'destroyed': false
-  };
+  static Map<String, dynamic> currentSession = {};
   static final Uuid _uuid = Uuid();
 
   static void set_uid(String _uid) {
@@ -24,6 +27,7 @@ class LocalCache {
     completedTasksCache.clear();
     userInfo.clear();
     planetsCache.clear();
+    fetchedPlanets.clear();
   }
 
   static Future<void> fetchAndCacheTasks() async {
@@ -33,9 +37,8 @@ class LocalCache {
     }
 
     try {
+      clear_cache(); // Clear any previous cache
       Map? tasksMap = await databaseService.readData('Tasks');
-
-      tasksCache.clear(); // Clear any previous cache
 
       if (tasksMap != null) {
         tasksMap.forEach((key, value) {
@@ -49,8 +52,6 @@ class LocalCache {
       }
 
       Map? completedTasksMap = await databaseService.readData('CompletedTasks');
-
-      completedTasksCache.clear(); // Clear any previous cache
 
       if (completedTasksMap != null) {
         completedTasksMap.forEach((key, value) {
@@ -75,10 +76,12 @@ class LocalCache {
             Map<String, dynamic> planet = Map<String, dynamic>.from(value);
             if (planet['uid'] == uid) {
               planetsCache[key] = planet;
+              fetchedPlanets.add(planet);
             }
           }
         });
       }
+      fetchedPlanets.sort((a, b) => DateTime.parse(b['timeOfPlanet']).compareTo(DateTime.parse(a['timeOfPlanet'])));
 
       print('Tasks cached successfully.');
     } catch (e) {
@@ -216,10 +219,11 @@ class LocalCache {
       currentSession['destroyed'] = true;
       currentSession['uid'] = uid;
       currentSession['timeOfPlanet'] = DateTime.now().toIso8601String();
+      currentSession['uniqueKey'] = uniqueKey;
       await databaseService.updateData('Planets/${uniqueKey}', currentSession);
       planetsCache[uniqueKey!] = currentSession;
-      currentSession['destroyed'] = false;
-      currentSession['planetType'] = 1;
+      fetchedPlanets.add(currentSession);
+      fetchedPlanets.sort((a, b) => DateTime.parse(b['timeOfPlanet']).compareTo(DateTime.parse(a['timeOfPlanet'])));
     } catch (e) {
       print('Error destroying planet: $e');
     }
@@ -234,11 +238,13 @@ class LocalCache {
       String uniqueKey = _uuid.v4();
       currentSession['uid'] = uid;
       currentSession['timeOfPlanet'] = DateTime.now().toIso8601String();
+      currentSession['uniqueKey'] = uniqueKey;
       await databaseService.updateData('Planets/${uniqueKey}', currentSession);
       planetsCache[uniqueKey!] = currentSession;
-      currentSession['planetType'] = 1;
+      fetchedPlanets.add(currentSession);
+      fetchedPlanets.sort((a, b) => DateTime.parse(b['timeOfPlanet']).compareTo(DateTime.parse(a['timeOfPlanet'])));
     } catch (e) {
-      print('Error destroying planet: $e');
+      print('Error completing planet: $e');
     }
   }
 }

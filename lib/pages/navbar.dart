@@ -25,7 +25,7 @@ class _NavBarState extends State<NavBar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 255, 250, 190),
+        backgroundColor: Color.fromARGB(190, 15, 15, 112),
         title: Text(currentPageIndex == 0
             ? 'Home'
             : currentPageIndex == 1
