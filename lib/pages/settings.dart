@@ -73,7 +73,8 @@ class _SettingsPageState extends State<SettingsPage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => EditProfilePage()),
+                      MaterialPageRoute(
+                          builder: (context) => EditProfilePage()),
                     );
                   },
                 ),
@@ -85,7 +86,7 @@ class _SettingsPageState extends State<SettingsPage> {
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: _signOut,
-              child: Text('Sign out'),
+              child: Text('Sign Out'),
             ),
           ),
         ],
@@ -93,4 +94,3 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 }
-

@@ -955,8 +955,6 @@ class BrokenSession extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String planet = planetNames[LocalCache.currentSession['planetType']]!;
-
     ClipRRect destroyedPlanet = ClipRRect(
       borderRadius: BorderRadius.circular(500),
       child: Image(
@@ -991,8 +989,9 @@ class BrokenSession extends StatelessWidget {
                   height: 15,
                 ),
                 Text(
-                  (leftApp) ? "You left the application and the session was ended!"
-                            : "You have ended your session before the timer ran out!",
+                  (leftApp)
+                      ? "You left the application and the session was ended!"
+                      : "You have ended your session before the timer ran out!",
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.grey,

@@ -37,8 +37,6 @@
 //     ));
 //   }
 
-  
-
 //   @override
 //   void dispose() {
 //     _controller?.dispose();
@@ -388,7 +386,8 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   int? _selectedPlanetType;
   Future<List<Map<String, dynamic>>>? planets;
@@ -407,8 +406,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
       vsync: this,
     )..repeat(reverse: true);
     _fetchPlanets();
-    _planetAnimation =
-        Tween<double>(begin: 0, end: -5).animate(CurvedAnimation(
+    _planetAnimation = Tween<double>(begin: 0, end: -5).animate(CurvedAnimation(
       parent: _controller,
       curve: Curves.easeInOut,
     ));
@@ -420,7 +418,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  List<Map<String, dynamic>> getRandomPlanets(List<Map<String, dynamic>> originalList, int n) {
+  List<Map<String, dynamic>> getRandomPlanets(
+      List<Map<String, dynamic>> originalList, int n) {
     if (n <= 0 || n > originalList.length) {
       return originalList;
     }
@@ -434,7 +433,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     tempList.shuffle();
 
     // Take (n-1) items from the shuffled list
-    List<Map<String, dynamic>> randomItems = tempList.getRange(0, n - 1).toList();
+    List<Map<String, dynamic>> randomItems =
+        tempList.getRange(0, n - 1).toList();
 
     // Insert the fixed first item at the beginning
     randomItems.insert(0, fixedFirstItem);
@@ -445,7 +445,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   void _fetchPlanets() {
     // Fetch planets for the current user
     setState(() {
-      planets = Future.value(getRandomPlanets(LocalCache.fetchedPlanets, numberOfPlanets) ?? []);
+      planets = Future.value(
+          getRandomPlanets(LocalCache.fetchedPlanets, numberOfPlanets) ?? []);
     });
   }
 
@@ -456,8 +457,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     for (int row = 0; row < gridRows; row++) {
       for (int col = 0; col < gridColumns; col++) {
         if (row == 1 && col == 1) continue;
-        final x = col * gridSize.width + random.nextDouble() * (gridSize.width - 50) + 25;
-        final y = row * gridSize.height + random.nextDouble() * (gridSize.height - 50) + 25;
+        final x = col * gridSize.width +
+            random.nextDouble() * (gridSize.width - 50) +
+            25;
+        final y = row * gridSize.height +
+            random.nextDouble() * (gridSize.height - 50) +
+            25;
         positions.add(Offset(x, y));
       }
     }
@@ -469,7 +474,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    final gridSize = Size(screenSize.width / gridColumns, screenSize.height / gridRows);
+    final gridSize =
+        Size(screenSize.width / gridColumns, screenSize.height / gridRows);
     final randomPositions = getRandomGridPositions(gridSize);
 
     return Scaffold(
@@ -502,7 +508,12 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                       return Stack(
                         children: [
                           // First, add the smaller planets to the Stack
-                          ...planets.skip(1).toList().asMap().entries.map((entry) {
+                          ...planets
+                              .skip(1)
+                              .toList()
+                              .asMap()
+                              .entries
+                              .map((entry) {
                             int index = entry.key;
                             Map<String, dynamic> planet = entry.value;
                             double size = 50;
@@ -546,7 +557,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                                 );
                               },
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(screenSize.width / 6),
+                                borderRadius:
+                                    BorderRadius.circular(screenSize.width / 6),
                                 child: Image.asset(
                                   (planets.first['destroyed'])
                                       ? 'lib/assets/destroyed.jpg'
@@ -627,7 +639,8 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
                             ),
                           );
                         },
-                      ).whenComplete(() => {}); // Refresh planets after closing the modal
+                      ).whenComplete(
+                          () => {}); // Refresh planets after closing the modal
                     },
                     child: Text('Create Session'),
                   ),
@@ -690,6 +703,7 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
     );
   }
 }
+
 class SessionCreator extends StatefulWidget {
   final GlobalKey<FormState> formKey;
 
