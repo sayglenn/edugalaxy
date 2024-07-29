@@ -13,6 +13,7 @@ class LocalCache {
   static Map<String, dynamic> userInfo = {};
   static Map<String, Map<String, dynamic>> planetsCache = {};
   static List<Map<String, dynamic>> fetchedPlanets = [];
+
   static bool autoClick = false;
   static DatabaseService databaseService = DatabaseService();
   static Map<String, dynamic> currentSession = {};
